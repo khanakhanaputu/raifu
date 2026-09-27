@@ -6,10 +6,23 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
+import { createClient } from "./supabase/client";
 import { todayISO } from "./date";
-import { createSeedState, SEED_TODAY } from "./seed";
+import { REMINDER_CATALOG } from "./reminders";
+import {
+  mealEntryPatchToRow,
+  mealEntryToRow,
+  profilePatchToRow,
+  rowToMealEntry,
+  rowToProfile,
+  rowToReminder,
+  type MealEntryRow,
+  type ProfileRow,
+  type ReminderRow,
+} from "./supabase/mappers";
 import type {
   MealEntry,
   Profile,
@@ -17,80 +30,186 @@ import type {
   ReminderId,
 } from "./store-types";
 
-const STORAGE_KEY = "raifu:state:v1";
 const XP_PER_ENTRY = 50;
+// Anchor tanggal sampai komponen ter-hidrasi, agar markup server & klien identik.
+const INITIAL_TODAY = "2024-01-01";
 
 type RaifuContextValue = {
   state: RaifuState;
-  /** Tanggal hari ini; memakai tanggal jangkar sampai komponen ter-hidrasi. */
   today: string;
-  hydrated: boolean;
+  loading: boolean;
+  error: string | null;
   addEntry: (entry: Omit<MealEntry, "id">) => MealEntry;
   updateEntry: (id: string, patch: Partial<Omit<MealEntry, "id">>) => void;
   removeEntry: (id: string) => void;
   addWater: (date: string, ml: number) => void;
   activateFreeze: (date: string) => void;
   toggleReminder: (id: ReminderId) => void;
-  updateProfile: (patch: Partial<Profile>) => void;
-  resetAll: () => void;
+  updateProfile: (patch: Partial<Profile> & { onboarded?: boolean }) => void;
 };
 
 const RaifuContext = createContext<RaifuContextValue | null>(null);
 
-function loadState(): RaifuState | null {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as RaifuState;
-    if (!parsed?.profile || !Array.isArray(parsed.entries)) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
+const EMPTY_PROFILE: Profile = {
+  name: "",
+  email: "",
+  sex: "lainnya",
+  age: 0,
+  weightKg: 0,
+  heightCm: 0,
+  startWeightKg: 0,
+  targetWeightKg: 0,
+  activity: "ringan",
+  goal: "jaga",
+  joinedLabel: "",
+  xp: 0,
+};
 
-function saveState(state: RaifuState) {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {
-    // Penyimpanan bisa diblokir (mode privat); state tetap hidup di memori.
-  }
-}
-
-function createId() {
-  return `entry-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+function emptyState(): RaifuState {
+  return {
+    profile: EMPTY_PROFILE,
+    entries: [],
+    water: {},
+    freezeDates: [],
+    reminders: REMINDER_CATALOG.map((meta) => ({
+      id: meta.id,
+      label: meta.label,
+      time: meta.time,
+      description: meta.description,
+      enabled: meta.defaultEnabled,
+    })),
+    onboarded: false,
+  };
 }
 
 export function RaifuProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<RaifuState>(() => createSeedState(SEED_TODAY));
-  const [today, setToday] = useState(SEED_TODAY);
-  const [hydrated, setHydrated] = useState(false);
+  const supabase = useMemo(() => createClient(), []);
+  const [state, setState] = useState<RaifuState>(emptyState);
+  const [today, setToday] = useState(INITIAL_TODAY);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const userIdRef = useRef<string | null>(null);
 
-  // Data tersimpan dan tanggal nyata baru dibaca setelah mount supaya markup
-  // server dan klien identik saat hidrasi.
   useEffect(() => {
-    const realToday = todayISO();
-    // Disengaja: pembacaan localStorage & tanggal nyata harus terjadi setelah
-    // hidrasi agar markup server dan klien identik pada render pertama.
+    // Disengaja: tanggal nyata baru dibaca setelah hidrasi agar markup server
+    // dan klien identik saat render pertama.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setToday(realToday);
-    setState(loadState() ?? createSeedState(realToday));
-    setHydrated(true);
+    setToday(todayISO());
   }, []);
+
+  const loadForUser = useCallback(
+    async (userId: string) => {
+      setLoading(true);
+      const [profileRes, entriesRes, waterRes, freezeRes, remindersRes] =
+        await Promise.all([
+          supabase.from("profiles").select("*").eq("id", userId).single(),
+          supabase.from("meal_entries").select("*").eq("user_id", userId),
+          supabase.from("water_logs").select("*").eq("user_id", userId),
+          supabase.from("freeze_dates").select("*").eq("user_id", userId),
+          supabase.from("reminders").select("*").eq("user_id", userId),
+        ]);
+
+      if (profileRes.error || !profileRes.data) {
+        setError("Gagal memuat data Anda. Coba muat ulang halaman.");
+        setLoading(false);
+        return;
+      }
+
+      const profileRow = profileRes.data as ProfileRow;
+      const entries = ((entriesRes.data ?? []) as MealEntryRow[]).map(rowToMealEntry);
+
+      const water: Record<string, number> = {};
+      for (const row of (waterRes.data ?? []) as { log_date: string; ml: number }[]) {
+        water[row.log_date] = row.ml;
+      }
+
+      const freezeDates = ((freezeRes.data ?? []) as { freeze_date: string }[]).map(
+        (row) => row.freeze_date,
+      );
+      const reminders = ((remindersRes.data ?? []) as ReminderRow[]).map(rowToReminder);
+
+      setState({
+        profile: rowToProfile(profileRow),
+        entries,
+        water,
+        freezeDates,
+        reminders,
+        onboarded: profileRow.onboarded,
+      });
+      setError(null);
+      setLoading(false);
+    },
+    [supabase],
+  );
 
   useEffect(() => {
-    if (hydrated) saveState(state);
-  }, [state, hydrated]);
+    let cancelled = false;
 
-  const addEntry = useCallback((entry: Omit<MealEntry, "id">) => {
-    const created: MealEntry = { ...entry, id: createId() };
-    setState((prev) => ({
-      ...prev,
-      entries: [...prev.entries, created],
-      profile: { ...prev.profile, xp: prev.profile.xp + XP_PER_ENTRY },
-    }));
-    return created;
-  }, []);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (cancelled) return;
+      if (session?.user) {
+        userIdRef.current = session.user.id;
+        loadForUser(session.user.id);
+      } else {
+        userIdRef.current = null;
+        setState(emptyState());
+        setLoading(false);
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        if (userIdRef.current !== session.user.id) {
+          userIdRef.current = session.user.id;
+          loadForUser(session.user.id);
+        }
+      } else {
+        userIdRef.current = null;
+        setState(emptyState());
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, [supabase, loadForUser]);
+
+  const addEntry = useCallback(
+    (entry: Omit<MealEntry, "id">) => {
+      const created: MealEntry = { ...entry, id: crypto.randomUUID() };
+      const nextXp = state.profile.xp + XP_PER_ENTRY;
+
+      setState((prev) => ({
+        ...prev,
+        entries: [...prev.entries, created],
+        profile: { ...prev.profile, xp: nextXp },
+      }));
+
+      const userId = userIdRef.current;
+      if (userId) {
+        supabase
+          .from("meal_entries")
+          .insert(mealEntryToRow(created, userId))
+          .then(({ error: insertError }) => {
+            if (insertError) setError("Gagal menyimpan catatan makanan. Coba lagi.");
+          });
+        supabase
+          .from("profiles")
+          .update({ xp: nextXp })
+          .eq("id", userId)
+          .then(({ error: updateError }) => {
+            if (updateError) setError("Gagal memperbarui XP. Coba lagi.");
+          });
+      }
+
+      return created;
+    },
+    [supabase, state.profile.xp],
+  );
 
   const updateEntry = useCallback(
     (id: string, patch: Partial<Omit<MealEntry, "id">>) => {
@@ -100,58 +219,149 @@ export function RaifuProvider({ children }: { children: React.ReactNode }) {
           entry.id === id ? { ...entry, ...patch } : entry,
         ),
       }));
+
+      const userId = userIdRef.current;
+      if (userId) {
+        supabase
+          .from("meal_entries")
+          .update(mealEntryPatchToRow(patch))
+          .eq("id", id)
+          .eq("user_id", userId)
+          .then(({ error: updateError }) => {
+            if (updateError) setError("Gagal memperbarui catatan makanan. Coba lagi.");
+          });
+      }
     },
-    [],
+    [supabase],
   );
 
-  const removeEntry = useCallback((id: string) => {
-    setState((prev) => ({
-      ...prev,
-      entries: prev.entries.filter((entry) => entry.id !== id),
-    }));
-  }, []);
+  const removeEntry = useCallback(
+    (id: string) => {
+      setState((prev) => ({
+        ...prev,
+        entries: prev.entries.filter((entry) => entry.id !== id),
+      }));
 
-  const addWater = useCallback((date: string, ml: number) => {
-    setState((prev) => ({
-      ...prev,
-      water: {
-        ...prev.water,
-        [date]: Math.max(0, (prev.water[date] ?? 0) + ml),
-      },
-    }));
-  }, []);
+      const userId = userIdRef.current;
+      if (userId) {
+        supabase
+          .from("meal_entries")
+          .delete()
+          .eq("id", id)
+          .eq("user_id", userId)
+          .then(({ error: deleteError }) => {
+            if (deleteError) setError("Gagal menghapus catatan makanan. Coba lagi.");
+          });
+      }
+    },
+    [supabase],
+  );
 
-  const activateFreeze = useCallback((date: string) => {
-    setState((prev) =>
-      prev.freezeDates.includes(date)
-        ? prev
-        : { ...prev, freezeDates: [...prev.freezeDates, date] },
-    );
-  }, []);
+  const addWater = useCallback(
+    (date: string, ml: number) => {
+      const nextMl = Math.max(0, (state.water[date] ?? 0) + ml);
 
-  const toggleReminder = useCallback((id: ReminderId) => {
-    setState((prev) => ({
-      ...prev,
-      reminders: prev.reminders.map((reminder) =>
-        reminder.id === id ? { ...reminder, enabled: !reminder.enabled } : reminder,
-      ),
-    }));
-  }, []);
+      setState((prev) => ({
+        ...prev,
+        water: { ...prev.water, [date]: nextMl },
+      }));
 
-  const updateProfile = useCallback((patch: Partial<Profile>) => {
-    setState((prev) => ({ ...prev, profile: { ...prev.profile, ...patch } }));
-  }, []);
+      const userId = userIdRef.current;
+      if (userId) {
+        supabase
+          .from("water_logs")
+          .upsert(
+            { user_id: userId, log_date: date, ml: nextMl },
+            { onConflict: "user_id,log_date" },
+          )
+          .then(({ error: upsertError }) => {
+            if (upsertError) setError("Gagal menyimpan catatan hidrasi. Coba lagi.");
+          });
+      }
+    },
+    [supabase, state.water],
+  );
 
-  const resetAll = useCallback(() => {
-    const realToday = todayISO();
-    setState(createSeedState(realToday));
-  }, []);
+  const activateFreeze = useCallback(
+    (date: string) => {
+      if (state.freezeDates.includes(date)) return;
+
+      setState((prev) =>
+        prev.freezeDates.includes(date)
+          ? prev
+          : { ...prev, freezeDates: [...prev.freezeDates, date] },
+      );
+
+      const userId = userIdRef.current;
+      if (userId) {
+        supabase
+          .from("freeze_dates")
+          .insert({ user_id: userId, freeze_date: date })
+          .then(({ error: insertError }) => {
+            if (insertError) setError("Gagal menyimpan freeze streak. Coba lagi.");
+          });
+      }
+    },
+    [supabase, state.freezeDates],
+  );
+
+  const toggleReminder = useCallback(
+    (id: ReminderId) => {
+      const current = state.reminders.find((reminder) => reminder.id === id);
+      const nextEnabled = !(current?.enabled ?? false);
+
+      setState((prev) => ({
+        ...prev,
+        reminders: prev.reminders.map((reminder) =>
+          reminder.id === id ? { ...reminder, enabled: nextEnabled } : reminder,
+        ),
+      }));
+
+      const userId = userIdRef.current;
+      if (userId) {
+        supabase
+          .from("reminders")
+          .update({ enabled: nextEnabled })
+          .eq("user_id", userId)
+          .eq("reminder_id", id)
+          .then(({ error: updateError }) => {
+            if (updateError) setError("Gagal memperbarui pengingat. Coba lagi.");
+          });
+      }
+    },
+    [supabase, state.reminders],
+  );
+
+  const updateProfile = useCallback(
+    (patch: Partial<Profile> & { onboarded?: boolean }) => {
+      const { onboarded, ...profilePatch } = patch;
+
+      setState((prev) => ({
+        ...prev,
+        profile: { ...prev.profile, ...profilePatch },
+        onboarded: onboarded ?? prev.onboarded,
+      }));
+
+      const userId = userIdRef.current;
+      if (userId) {
+        supabase
+          .from("profiles")
+          .update(profilePatchToRow(patch))
+          .eq("id", userId)
+          .then(({ error: updateError }) => {
+            if (updateError) setError("Gagal menyimpan profil. Coba lagi.");
+          });
+      }
+    },
+    [supabase],
+  );
 
   const value = useMemo<RaifuContextValue>(
     () => ({
       state,
       today,
-      hydrated,
+      loading,
+      error,
       addEntry,
       updateEntry,
       removeEntry,
@@ -159,12 +369,12 @@ export function RaifuProvider({ children }: { children: React.ReactNode }) {
       activateFreeze,
       toggleReminder,
       updateProfile,
-      resetAll,
     }),
     [
       state,
       today,
-      hydrated,
+      loading,
+      error,
       addEntry,
       updateEntry,
       removeEntry,
@@ -172,7 +382,6 @@ export function RaifuProvider({ children }: { children: React.ReactNode }) {
       activateFreeze,
       toggleReminder,
       updateProfile,
-      resetAll,
     ],
   );
 

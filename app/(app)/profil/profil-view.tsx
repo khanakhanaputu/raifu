@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { Card, Eyebrow, Pill, ProgressBar, buttonClass, cx, fieldClass, FieldLabel } from "@/app/components/ui";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { Card, Eyebrow, IconTile, Pill, ProgressBar, buttonClass, cx, fieldClass, FieldLabel } from "@/app/components/ui";
 import {
   BellIcon,
   DeviceIcon,
   DropletIcon,
   LeafIcon,
+  LogoutIcon,
   RefreshIcon,
   ShieldIcon,
   SlidersIcon,
@@ -37,7 +40,9 @@ const SECTIONS = [
 ];
 
 export function ProfilView() {
-  const { state, today, updateProfile, toggleReminder, resetAll } = useRaifu();
+  const router = useRouter();
+  const supabase = useMemo(() => createClient(), []);
+  const { state, today, updateProfile, toggleReminder } = useRaifu();
   const streak = streakInfo(state, today);
   const level = levelInfo(state.profile.xp);
   const savedTargets = targetsOf(state);
@@ -142,9 +147,9 @@ export function ProfilView() {
               {streak.days} Hari Penuh
             </span>
           </span>
-          <span className="grid h-10 w-10 place-items-center rounded-lg bg-sage-soft text-sage">
+          <IconTile shrink={false}>
             <LeafIcon className="h-5 w-5" />
-          </span>
+          </IconTile>
         </Card>
       </div>
 
@@ -180,8 +185,8 @@ export function ProfilView() {
           <Card className="flex items-center gap-3 p-4">
             <RefreshIcon className="h-5 w-5 shrink-0 text-sage" />
             <p className="min-w-0 flex-1">
-              <span className="block text-xs text-muted">Penyimpanan Lokal</span>
-              <span className="block text-sm text-ink">Tersinkron di perangkat ini</span>
+              <span className="block text-xs text-muted">Penyimpanan Akun</span>
+              <span className="block text-sm text-ink">Tersinkron ke akun Anda</span>
             </p>
             <span className="h-2 w-2 shrink-0 rounded-full bg-sage" />
           </Card>
@@ -439,9 +444,9 @@ export function ProfilView() {
                     BMR: {formatNumber(previewTargets.bmr)} kkal + aktivitas
                   </span>
                 </p>
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white text-sage">
+                <IconTile tone="white">
                   <LeafIcon className="h-5 w-5" />
-                </span>
+                </IconTile>
               </div>
 
               <div className="flex items-center justify-between gap-4 rounded-lg bg-mist p-5">
@@ -459,9 +464,9 @@ export function ProfilView() {
                     Setara {Math.round(previewTargets.waterMl / 250)} cangkir air mineral
                   </span>
                 </p>
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white text-sage">
+                <IconTile tone="white">
                   <DropletIcon className="h-5 w-5" />
-                </span>
+                </IconTile>
               </div>
             </div>
 
@@ -578,8 +583,8 @@ export function ProfilView() {
               <ul className="mt-5 space-y-3 text-sm leading-relaxed text-body">
                 <li className="flex gap-3">
                   <ShieldIcon className="mt-0.5 h-4 w-4 shrink-0 text-sage" />
-                  Seluruh catatan nutrisi disimpan di perangkat Anda sendiri, tanpa
-                  pelacak iklan komersial.
+                  Seluruh catatan nutrisi tersimpan aman di akun Anda, tanpa pelacak
+                  iklan komersial.
                 </li>
                 <li className="flex gap-3">
                   <ShieldIcon className="mt-0.5 h-4 w-4 shrink-0 text-sage" />
@@ -589,14 +594,14 @@ export function ProfilView() {
               </ul>
               <button
                 type="button"
-                onClick={() => {
-                  resetAll();
-                  setStatus("Data lokal telah dipulihkan ke kondisi awal.");
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  router.push("/masuk");
                 }}
                 className={buttonClass("secondary", "mt-5")}
               >
-                <RefreshIcon className="h-4 w-4" />
-                Pulihkan Data Awal
+                <LogoutIcon className="h-4 w-4" />
+                Keluar
               </button>
             </Card>
 
@@ -605,9 +610,9 @@ export function ProfilView() {
               <h2 className="mt-2 font-serif text-xl text-ink">Perangkat Terhubung</h2>
               <ul className="mt-5 space-y-3">
                 {[
-                  { name: "Apple Health / Google Fit", status: "Siap dihubungkan" },
-                  { name: "Timbangan Pintar Bluetooth", status: "Siap dihubungkan" },
-                  { name: "Ekspor Laporan Bulanan (CSV)", status: "Tersedia" },
+                  { name: "Apple Health / Google Fit", status: "Segera Hadir" },
+                  { name: "Timbangan Pintar Bluetooth", status: "Segera Hadir" },
+                  { name: "Ekspor Laporan Bulanan (CSV)", status: "Segera Hadir" },
                 ].map((item) => (
                   <li
                     key={item.name}

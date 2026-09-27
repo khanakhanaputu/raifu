@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import {
   Card,
   Eyebrow,
+  IconTile,
   MacroRow,
   Pill,
   ProgressBar,
@@ -19,6 +20,7 @@ import {
   FlameIcon,
   JournalIcon,
   LeafIcon,
+  LockIcon,
   ScanIcon,
   TrashIcon,
   PencilIcon,
@@ -73,9 +75,9 @@ export function DashboardView() {
     <div className="mx-auto max-w-[1400px] space-y-6 px-4 py-8 sm:px-6 lg:px-8">
       <Card className="flex flex-col gap-6 p-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-start gap-4">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-sage-soft text-sage">
+          <IconTile size="xl">
             <LeafIcon className="h-6 w-6" />
-          </span>
+          </IconTile>
           <div>
             <p className="text-xs text-muted">
               <span className="font-jp">{greeting.jp}</span>
@@ -247,7 +249,7 @@ export function DashboardView() {
                       key={entry.id}
                       className="flex items-center gap-4 rounded-lg bg-mist p-4"
                     >
-                      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-white text-sage">
+                      <IconTile tone="white" rounded="md">
                         {entry.mealType === "sarapan" ? (
                           <JournalIcon className="h-5 w-5" />
                         ) : entry.mealType === "camilan" ? (
@@ -255,7 +257,7 @@ export function DashboardView() {
                         ) : (
                           <BowlIcon className="h-5 w-5" />
                         )}
-                      </span>
+                      </IconTile>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs tracking-[0.1em] text-muted uppercase">
                           {entry.time} · {meta.label}
@@ -268,11 +270,11 @@ export function DashboardView() {
                           {entry.carbs}g · L: {entry.fat}g
                         </p>
                       </div>
-                      <div className="flex shrink-0 items-center gap-1">
+                      <div className="flex shrink-0 items-center">
                         <Link
                           href="/food-log"
                           aria-label={`Ubah ${entry.name}`}
-                          className="grid h-8 w-8 place-items-center rounded-md text-muted transition-colors hover:bg-white hover:text-sage"
+                          className="grid h-11 w-11 place-items-center rounded-md text-muted transition-colors hover:bg-white hover:text-sage"
                         >
                           <PencilIcon className="h-4 w-4" />
                         </Link>
@@ -280,7 +282,7 @@ export function DashboardView() {
                           type="button"
                           onClick={() => removeEntry(entry.id)}
                           aria-label={`Hapus ${entry.name}`}
-                          className="grid h-8 w-8 place-items-center rounded-md text-muted transition-colors hover:bg-white hover:text-sage"
+                          className="grid h-11 w-11 place-items-center rounded-md text-muted transition-colors hover:bg-white hover:text-sage"
                         >
                           <TrashIcon className="h-4 w-4" />
                         </button>
@@ -387,7 +389,7 @@ export function DashboardView() {
                       )}
                       title={badge.description}
                     >
-                      {unlocked ? badge.icon : "🔒"}
+                      {unlocked ? badge.icon : <LockIcon className="h-4 w-4 text-muted" />}
                     </span>
                     <span
                       className={cx(
@@ -404,7 +406,7 @@ export function DashboardView() {
           </Card>
 
           <Card className="p-6">
-            <Eyebrow>Rekomendasi Camilan Sehat</Eyebrow>
+            <Eyebrow>Ide Camilan Hari Ini</Eyebrow>
             <div className="mt-4 flex gap-4">
               <span className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-stone">
                 <Image
@@ -434,7 +436,7 @@ export function DashboardView() {
           <div className="rounded-xl bg-sage-soft p-6">
             <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.12em] text-sage uppercase">
               <CheckCircleIcon className="h-4 w-4" />
-              Tips Siang Ini · Raifu Bot
+              Tips Harian · Edukasi Gizi
             </p>
             <p className="mt-3 text-sm leading-relaxed text-ink/80">
               Tingkatkan asupan air mineral{" "}

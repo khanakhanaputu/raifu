@@ -2,24 +2,23 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Card, Pill, buttonClass, cx, fieldClass, FieldLabel } from "@/app/components/ui";
+import { useMemo, useState } from "react";
+import { Card, IconTile, Pill, buttonClass, cx, fieldClass, FieldLabel } from "@/app/components/ui";
 import {
   ArrowRightIcon,
   EyeIcon,
   LeafIcon,
   MailIcon,
   ShieldIcon,
-  StarIcon,
 } from "@/app/components/icons";
 import { PHOTOS } from "@/lib/content";
+import { createClient } from "@/lib/supabase/client";
 
 type Tab = "masuk" | "daftar";
 
-const TREND = [38, 34, 36, 30, 32, 26, 28, 22, 24, 18, 20, 14, 16, 10];
-
 export function MasukView() {
   const router = useRouter();
+  const supabase = useMemo(() => createClient(), []);
   const [tab, setTab] = useState<Tab>("masuk");
   const [showPassword, setShowPassword] = useState(false);
   const [values, setValues] = useState({ name: "", email: "", password: "" });
@@ -29,7 +28,7 @@ export function MasukView() {
   const set = (key: keyof typeof values) => (value: string) =>
     setValues((prev) => ({ ...prev, [key]: value }));
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setError(null);
 
@@ -47,7 +46,32 @@ export function MasukView() {
     }
 
     setPending(true);
-    router.push(tab === "daftar" ? "/onboarding" : "/dashboard");
+
+    if (tab === "daftar") {
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+        options: { data: { name: values.name.trim() } },
+      });
+      if (signUpError) {
+        setError(signUpError.message);
+        setPending(false);
+        return;
+      }
+      router.push("/onboarding");
+      return;
+    }
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: values.email,
+      password: values.password,
+    });
+    if (signInError) {
+      setError(signInError.message);
+      setPending(false);
+      return;
+    }
+    router.push("/dashboard");
   };
 
   return (
@@ -109,73 +133,19 @@ export function MasukView() {
           </div>
 
           <Card className="mt-4 p-5">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="text-xs tracking-[0.12em] text-muted uppercase">
-                  Ritme Kesadaran Kolektif
-                </p>
-                <h2 className="mt-2 font-serif text-xl text-ink">
-                  Keseimbangan 30 Hari Tanpa Stres
-                </h2>
-              </div>
-              <p className="text-right">
-                <span className="block font-serif text-2xl text-sage">98.4%</span>
-                <span className="block text-xs text-muted">Kepuasan Batin</span>
-              </p>
-            </div>
-
-            <svg
-              viewBox="0 0 280 60"
-              role="img"
-              aria-label="Grafik tren ketenangan selama 30 hari"
-              className="mt-5 h-20 w-full"
-              preserveAspectRatio="none"
-            >
-              <polyline
-                points={TREND.map((value, index) => `${(index / (TREND.length - 1)) * 280},${value}`).join(" ")}
-                fill="none"
-                stroke="var(--color-sage)"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                vectorEffect="non-scaling-stroke"
-              />
-              {[0, 6, 13].map((index) => (
-                <circle
-                  key={index}
-                  cx={(index / (TREND.length - 1)) * 280}
-                  cy={TREND[index]}
-                  r="2.5"
-                  fill="var(--color-sage)"
-                />
-              ))}
-            </svg>
-
-            <p className="mt-3 flex justify-between text-xs text-muted">
-              <span>Hari 1: Awal Niat</span>
-              <span>Hari 15: Ritme Lembut</span>
-              <span>Hari 30: Kebiasaan Abadi</span>
-            </p>
-          </Card>
-
-          <Card className="mt-4 bg-white/70 p-5">
             <p className="flex items-center gap-3">
-              <span className="flex gap-0.5 text-sage" aria-label="Penilaian 5 dari 5">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <StarIcon key={index} className="h-3.5 w-3.5" />
-                ))}
+              <IconTile>
+                <ShieldIcon className="h-5 w-5" />
+              </IconTile>
+              <span>
+                <span className="block text-xs tracking-[0.12em] text-muted uppercase">
+                  Privasi Anda
+                </span>
+                <span className="mt-1 block text-sm leading-relaxed text-body">
+                  Data Anda tersimpan aman dan privat, hanya bisa diakses lewat akun
+                  Anda sendiri.
+                </span>
               </span>
-              <span className="text-xs tracking-[0.1em] text-muted uppercase">
-                30 Hari Konsisten
-              </span>
-            </p>
-            <blockquote className="mt-3 text-sm leading-relaxed text-body italic">
-              “Raifu mengubah cara pandangku terhadap makanan. Bukan lagi tentang
-              menghitung gramase dengan cemas, melainkan mendengarkan sinyal tubuh dengan
-              tenang.”
-            </blockquote>
-            <p className="mt-3 text-xs text-muted">
-              Nadia A. — Praktisi Desain, Jakarta
             </p>
           </Card>
         </section>
@@ -223,24 +193,7 @@ export function MasukView() {
                 : "Buat akun gratis, lalu susun target nutrisi personal dalam tiga langkah singkat."}
             </p>
 
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <button type="button" className={buttonClass("ghost")}>
-                <span aria-hidden className="font-serif text-base text-sage">G</span>
-                Google
-              </button>
-              <button type="button" className={buttonClass("ghost")}>
-                <span aria-hidden className="text-base"></span>
-                Apple ID
-              </button>
-            </div>
-
-            <p className="my-6 flex items-center gap-4 text-xs tracking-[0.12em] text-muted uppercase">
-              <span className="h-px flex-1 bg-line" />
-              atau lanjutkan dengan surel
-              <span className="h-px flex-1 bg-line" />
-            </p>
-
-            <form onSubmit={handleSubmit} noValidate className="space-y-4">
+            <form onSubmit={handleSubmit} noValidate className="mt-6 space-y-4">
               {tab === "daftar" && (
                 <div>
                   <FieldLabel htmlFor="nama-lengkap">Nama Lengkap</FieldLabel>
@@ -336,8 +289,8 @@ export function MasukView() {
 
             <p className="mt-6 flex items-start gap-3 text-xs leading-relaxed text-muted">
               <ShieldIcon className="mt-0.5 h-4 w-4 shrink-0 text-sage" />
-              Enkripsi 256-bit standar medis · Privasi tanpa pelacak iklan komersial.
-              Prototipe ini menyimpan data hanya di perangkat Anda.
+              Tanpa pelacak iklan komersial · data Anda privat, hanya bisa diakses lewat
+              akun Anda sendiri.
             </p>
           </Card>
         </section>

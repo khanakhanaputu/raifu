@@ -237,14 +237,12 @@ export type SampleScan = {
   name: string;
   detail: string;
   image: string;
-  confidence: number;
   kcal: number;
   protein: number;
   carbs: number;
   fat: number;
   fiber: number;
   sodiumMg: number;
-  components: { label: string; match: number }[];
   micros: string[];
   note: string;
 };
@@ -255,20 +253,12 @@ export const SAMPLE_SCANS: SampleScan[] = [
     name: "Salmon Quinoa Poke Bowl",
     detail: "dengan Edamame Segar, Alpukat & Wijen Panggang",
     image: PHOTOS.teishoku,
-    confidence: 98,
     kcal: 540,
     protein: 36,
     carbs: 48,
     fat: 22,
     fiber: 8,
     sodiumMg: 420,
-    components: [
-      { label: "Fresh Salmon (120g)", match: 99.4 },
-      { label: "Edamame", match: 98 },
-      { label: "Alpukat Mentega", match: 97.1 },
-      { label: "Quinoa Merah", match: 96.2 },
-      { label: "Wijen Panggang", match: 94.8 },
-    ],
     micros: ["Kalium 680mg", "Vitamin D (70%)", "Lemak Tak Jenuh"],
     note: "Pilihan makan siang sangat seimbang! Kaya Omega-3 dari salmon dan serat quinoa membantu menjaga kestabilan insulin sepanjang siang. Tidak menimbulkan lonjakan gula berlebih.",
   },
@@ -277,19 +267,12 @@ export const SAMPLE_SCANS: SampleScan[] = [
     name: "Gado-Gado Spesial",
     detail: "Sayur rebus, tempe kukus & saus kacang encer",
     image: PHOTOS.bowl,
-    confidence: 96,
     kcal: 480,
     protein: 22,
     carbs: 42,
     fat: 20,
     fiber: 11,
     sodiumMg: 510,
-    components: [
-      { label: "Tempe Kukus", match: 97.8 },
-      { label: "Kacang Panjang & Kol", match: 95.4 },
-      { label: "Telur Rebus", match: 94.1 },
-      { label: "Saus Kacang", match: 92.6 },
-    ],
     micros: ["Folat 190mcg", "Probiotik Alami", "Serat Larut"],
     note: "Serat sayur rebusnya tinggi sekali. Jaga porsi saus kacang agar lemak jenuh tetap terkendali, dan lengkapi dengan air mineral setelah makan.",
   },
@@ -298,18 +281,12 @@ export const SAMPLE_SCANS: SampleScan[] = [
     name: "Avocado Toast with Egg",
     detail: "Roti gandum utuh, alpukat lumat & telur mata sapi",
     image: PHOTOS.breakfast,
-    confidence: 97,
     kcal: 390,
     protein: 16,
     carbs: 32,
     fat: 21,
     fiber: 9,
     sodiumMg: 380,
-    components: [
-      { label: "Roti Gandum Utuh", match: 98.2 },
-      { label: "Alpukat", match: 97.5 },
-      { label: "Telur Ayam", match: 96.9 },
-    ],
     micros: ["Kolin 210mg", "Vitamin E", "Lemak Tak Jenuh Tunggal"],
     note: "Sarapan padat energi dengan lemak sehat. Tambahkan segenggam sayur hijau agar rasio serat harian tercapai lebih awal.",
   },
@@ -318,19 +295,12 @@ export const SAMPLE_SCANS: SampleScan[] = [
     name: "Ayam Panggang Salad",
     detail: "Dada ayam panggang, selada romaine & dressing wijen",
     image: PHOTOS.sushiBoat,
-    confidence: 95,
     kcal: 420,
     protein: 42,
     carbs: 14,
     fat: 18,
     fiber: 6,
     sodiumMg: 430,
-    components: [
-      { label: "Dada Ayam Panggang", match: 98.7 },
-      { label: "Selada Romaine", match: 95.2 },
-      { label: "Tomat Ceri", match: 93.5 },
-      { label: "Dressing Wijen", match: 91.8 },
-    ],
     micros: ["Zat Besi 3.2mg", "Niasin (B3)", "Protein Lengkap"],
     note: "Sangat tinggi protein dan rendah karbohidrat. Cocok untuk makan malam ringan; tambahkan ubi kukus bila Anda berlatih sore hari.",
   },
@@ -366,7 +336,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       "Mengapa memberi jeda 20 menit pada reseptor lambung terbukti secara klinis memperpanjang usia seluler, menstabilkan lonjakan glukosa darah, dan melenyapkan keletihan letih pascamakan.",
     readMinutes: 7,
-    author: "dr. Kenji Pramana, Sp.GK",
+    author: "Tim Nutrisi Raifu",
     topic: "Mindful Eating",
     image: PHOTOS.teishoku,
     featured: true,
@@ -401,7 +371,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       "Menelusuri sinergi probiotik alami tradisional dalam memperkuat poros usus-otak (gut-brain axis) serta menstimulasi produksi hormon serotonin alami.",
     readMinutes: 6,
-    author: "Rei Takahashi",
+    author: "Tim Nutrisi Raifu",
     topic: "Kesehatan Usus",
     image: PHOTOS.sushiDark,
     body: [
@@ -435,7 +405,7 @@ export const ARTICLES: Article[] = [
     excerpt:
       "Profil asam amino esensial lengkap dan teknik memadukannya dalam satu santapan agar regenerasi jaringan otot tercapai optimal tanpa membebani ginjal.",
     readMinutes: 8,
-    author: "dr. Kenji Pramana, Sp.GK",
+    author: "Tim Nutrisi Raifu",
     topic: "Sintesis Protein",
     image: PHOTOS.salmonBoard,
     body: [

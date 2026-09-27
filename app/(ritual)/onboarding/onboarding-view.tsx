@@ -2,11 +2,12 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Card, Eyebrow, Pill, buttonClass, cx, fieldClass, FieldLabel } from "@/app/components/ui";
+import { useState, type ReactNode } from "react";
+import { Card, Eyebrow, IconTile, Pill, buttonClass, cx, fieldClass, FieldLabel } from "@/app/components/ui";
 import {
   ArrowRightIcon,
   CheckCircleIcon,
+  ChevronDownIcon,
   LeafIcon,
   SnowflakeIcon,
 } from "@/app/components/icons";
@@ -40,6 +41,12 @@ const TASTE_OPTIONS = [
   { id: "rendah-laktosa", label: "Rendah Laktosa", detail: "Susu almond, santan encer" },
 ];
 
+const SEX_OPTIONS = [
+  { value: "wanita", label: "Wanita", sign: "♀" },
+  { value: "pria", label: "Pria", sign: "♂" },
+  { value: "lainnya", label: "Lainnya", sign: "∞" },
+] as const;
+
 const RITUAL_OPTIONS: { id: ReminderId; label: string; detail: string }[] = [
   { id: "sarapan", label: "Pengingat Sarapan Pagi", detail: "07:30 WIB · memulai hari dengan seimbang" },
   { id: "siang", label: "Pengingat Makan Siang Mindful", detail: "12:00 WIB · makan tanpa distraksi gawai" },
@@ -48,10 +55,77 @@ const RITUAL_OPTIONS: { id: ReminderId; label: string; detail: string }[] = [
   { id: "hidrasi", label: "Pengingat Hidrasi Berkala", detail: "Interval 2 jam · 250ml tiap kali" },
 ];
 
+function SubStepCard({
+  index,
+  title,
+  eyebrow,
+  summary,
+  isOpen,
+  onToggle,
+  onNext,
+  isLast,
+  children,
+}: {
+  index: number;
+  title: ReactNode;
+  eyebrow: string;
+  summary: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  onNext: () => void;
+  isLast: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <Card className="overflow-hidden p-0">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={isOpen}
+        className="flex w-full items-center gap-3 p-6 text-left"
+      >
+        <span className="h-5 w-1 shrink-0 rounded-full bg-sage" />
+        <span className="min-w-0 flex-1">
+          <span className="flex items-baseline justify-between gap-3">
+            <h2 className="font-serif text-xl text-ink">
+              {index}. {title}
+            </h2>
+            <Eyebrow className="hidden sm:inline">{eyebrow}</Eyebrow>
+          </span>
+          {!isOpen && (
+            <span className="mt-1 block truncate text-sm text-body">{summary}</span>
+          )}
+        </span>
+        <ChevronDownIcon
+          className={cx(
+            "h-4 w-4 shrink-0 text-muted transition-transform",
+            isOpen && "rotate-180",
+          )}
+        />
+      </button>
+
+      {isOpen && (
+        <div className="px-6 pb-6">
+          {children}
+          <button
+            type="button"
+            onClick={onNext}
+            className={buttonClass("secondary", "mt-6")}
+          >
+            {isLast ? "Selesai Bagian Ini" : "Lanjut"}
+            <ArrowRightIcon className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+    </Card>
+  );
+}
+
 export function OnboardingView() {
   const router = useRouter();
   const { state, updateProfile, toggleReminder } = useRaifu();
   const [step, setStep] = useState(0);
+  const [openSubStep, setOpenSubStep] = useState(0);
   const [tastes, setTastes] = useState<string[]>(["nusantara", "jepang"]);
   const [form, setForm] = useState({
     sex: state.profile.sex as Sex,
@@ -86,6 +160,17 @@ export function OnboardingView() {
     fat: Math.round(((targets.fat * 9) / targets.kcal) * 100),
   };
 
+  const sexLabel = SEX_OPTIONS.find((option) => option.value === form.sex)?.label ?? "";
+  const goalOption = GOAL_OPTIONS.find((option) => option.value === form.goal);
+  const activityOption = ACTIVITY_OPTIONS.find((option) => option.value === form.activity);
+
+  const subStepSummaries = [
+    `${sexLabel} · ${numeric.age} Tahun`,
+    `${numeric.weightKg}kg · ${numeric.heightCm}cm · IMT ${bmi.toFixed(1)} (${category.label})`,
+    goalOption?.label ?? "",
+    activityOption?.label ?? "",
+  ];
+
   const finish = () => {
     updateProfile({
       sex: form.sex,
@@ -101,6 +186,7 @@ export function OnboardingView() {
             : numeric.weightKg,
       activity: form.activity,
       goal: form.goal,
+      onboarded: true,
     });
     router.push("/dashboard");
   };
@@ -228,28 +314,23 @@ export function OnboardingView() {
                 </p>
               </Card>
 
-              <Card className="p-6">
-                <div className="flex items-baseline justify-between gap-3">
-                  <h2 className="flex items-center gap-3 font-serif text-xl text-ink">
-                    <span className="h-5 w-1 rounded-full bg-sage" />
-                    1. Profil Diri &amp; Usia
-                  </h2>
-                  <Eyebrow>Dasar Metabolisme</Eyebrow>
-                </div>
-
+              <SubStepCard
+                index={1}
+                title="Profil Diri & Usia"
+                eyebrow="Dasar Metabolisme"
+                summary={subStepSummaries[0]}
+                isOpen={openSubStep === 0}
+                onToggle={() => setOpenSubStep((v) => (v === 0 ? -1 : 0))}
+                onNext={() => setOpenSubStep(1)}
+                isLast={false}
+              >
                 <div className="mt-5 grid gap-5 sm:grid-cols-[1.4fr_1fr]">
                   <fieldset>
                     <legend className="mb-1.5 text-xs font-medium text-ink">
                       Jenis Kelamin Biologis
                     </legend>
                     <div className="grid grid-cols-3 gap-2">
-                      {(
-                        [
-                          { value: "wanita", label: "Wanita", sign: "♀" },
-                          { value: "pria", label: "Pria", sign: "♂" },
-                          { value: "lainnya", label: "Lainnya", sign: "∞" },
-                        ] as const
-                      ).map((option) => (
+                      {SEX_OPTIONS.map((option) => (
                         <button
                           key={option.value}
                           type="button"
@@ -284,17 +365,18 @@ export function OnboardingView() {
                     />
                   </div>
                 </div>
-              </Card>
+              </SubStepCard>
 
-              <Card className="p-6">
-                <div className="flex items-baseline justify-between gap-3">
-                  <h2 className="flex items-center gap-3 font-serif text-xl text-ink">
-                    <span className="h-5 w-1 rounded-full bg-sage" />
-                    2. Dimensi Fisik
-                  </h2>
-                  <Eyebrow>Pengukuran Sadar</Eyebrow>
-                </div>
-
+              <SubStepCard
+                index={2}
+                title="Dimensi Fisik"
+                eyebrow="Pengukuran Sadar"
+                summary={subStepSummaries[1]}
+                isOpen={openSubStep === 1}
+                onToggle={() => setOpenSubStep((v) => (v === 1 ? -1 : 1))}
+                onNext={() => setOpenSubStep(2)}
+                isLast={false}
+              >
                 <div className="mt-6 space-y-6">
                   <SliderField
                     id="berat-onboarding"
@@ -318,9 +400,9 @@ export function OnboardingView() {
 
                 <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-lg bg-sage-soft p-4">
                   <p className="flex items-center gap-3">
-                    <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white text-sage">
+                    <IconTile tone="white">
                       <LeafIcon className="h-5 w-5" />
-                    </span>
+                    </IconTile>
                     <span>
                       <span className="block text-xs tracking-[0.1em] text-sage uppercase">
                         Estimasi Indeks Massa Tubuh (IMT)
@@ -338,17 +420,18 @@ export function OnboardingView() {
                     <span className="mt-0.5 block font-medium text-ink">18.5 – 24.9</span>
                   </p>
                 </div>
-              </Card>
+              </SubStepCard>
 
-              <Card className="p-6">
-                <div className="flex items-baseline justify-between gap-3">
-                  <h2 className="flex items-center gap-3 font-serif text-xl text-ink">
-                    <span className="h-5 w-1 rounded-full bg-sage" />
-                    3. Arah &amp; Niat Sehat Anda
-                  </h2>
-                  <Eyebrow>Ikigai Tubuh</Eyebrow>
-                </div>
-
+              <SubStepCard
+                index={3}
+                title="Arah & Niat Sehat Anda"
+                eyebrow="Ikigai Tubuh"
+                summary={subStepSummaries[2]}
+                isOpen={openSubStep === 2}
+                onToggle={() => setOpenSubStep((v) => (v === 2 ? -1 : 2))}
+                onNext={() => setOpenSubStep(3)}
+                isLast={false}
+              >
                 <ul className="mt-5 space-y-3">
                   {GOAL_OPTIONS.map((option) => {
                     const selected = form.goal === option.value;
@@ -389,17 +472,18 @@ export function OnboardingView() {
                     );
                   })}
                 </ul>
-              </Card>
+              </SubStepCard>
 
-              <Card className="p-6">
-                <div className="flex items-baseline justify-between gap-3">
-                  <h2 className="flex items-center gap-3 font-serif text-xl text-ink">
-                    <span className="h-5 w-1 rounded-full bg-sage" />
-                    4. Aktivitas &amp; Gerak Harian
-                  </h2>
-                  <Eyebrow>Ritme Gerak</Eyebrow>
-                </div>
-
+              <SubStepCard
+                index={4}
+                title="Aktivitas & Gerak Harian"
+                eyebrow="Ritme Gerak"
+                summary={subStepSummaries[3]}
+                isOpen={openSubStep === 3}
+                onToggle={() => setOpenSubStep((v) => (v === 3 ? -1 : 3))}
+                onNext={() => setOpenSubStep(-1)}
+                isLast={true}
+              >
                 <ul className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                   {ACTIVITY_OPTIONS.map((option) => {
                     const selected = form.activity === option.value;
@@ -429,7 +513,7 @@ export function OnboardingView() {
                     );
                   })}
                 </ul>
-              </Card>
+              </SubStepCard>
             </>
           )}
 
@@ -590,7 +674,10 @@ export function OnboardingView() {
       <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
         <button
           type="button"
-          onClick={() => setStep((value) => Math.max(0, value - 1))}
+          onClick={() => {
+            setStep((value) => Math.max(0, value - 1));
+            setOpenSubStep(0);
+          }}
           disabled={step === 0}
           className="text-sm text-body transition-colors hover:text-sage disabled:opacity-40"
         >
@@ -604,7 +691,10 @@ export function OnboardingView() {
         {step < STEPS.length - 1 ? (
           <button
             type="button"
-            onClick={() => setStep((value) => value + 1)}
+            onClick={() => {
+              setStep((value) => value + 1);
+              setOpenSubStep(0);
+            }}
             className={buttonClass("primary")}
           >
             Simpan &amp; Lanjut ke Langkah {step + 2}

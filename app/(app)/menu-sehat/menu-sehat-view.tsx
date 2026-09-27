@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Card, Eyebrow, ProgressRing, buttonClass, cx, fieldClass } from "@/app/components/ui";
+import { Card, Eyebrow, FilterChip, IconTile, ProgressRing, buttonClass, cx, fieldClass } from "@/app/components/ui";
 import {
   BowlIcon,
   ClockIcon,
@@ -125,9 +125,9 @@ export function MenuSehatView() {
         </div>
 
         <Card className="flex items-center gap-4 bg-sage-soft p-4">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white text-sage">
+          <IconTile tone="white">
             <LeafIcon className="h-5 w-5" />
-          </span>
+          </IconTile>
           <p>
             <span className="block text-xs tracking-[0.12em] text-sage uppercase">
               Ritual Hari Ini
@@ -408,15 +408,15 @@ export function MenuSehatView() {
           </Card>
 
           <Card className="flex items-start gap-4 bg-mist p-5">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-white text-xl">
-              🍵
-            </span>
+            <IconTile size="lg" tone="white">
+              <BowlIcon className="h-5 w-5" />
+            </IconTile>
             <p>
               <span className="block text-xs tracking-[0.12em] text-muted uppercase">
-                Kurator Nutrisi
+                Filosofi Koleksi
               </span>
               <span className="mt-1 block text-sm font-medium text-ink">
-                Rei Takahashi &amp; Tim Raifu
+                Ichiju Sansai &amp; Hara Hachi Bu
               </span>
               <span className="mt-1 block text-xs leading-relaxed text-body">
                 Setiap menu dirancang untuk kestabilan ritme sirkadian tubuh.
@@ -426,29 +426,5 @@ export function MenuSehatView() {
         </div>
       </div>
     </div>
-  );
-}
-
-function FilterChip({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={cx(
-        "rounded-full px-3.5 py-1.5 text-xs transition-colors",
-        active ? "bg-sage text-white" : "bg-mist text-body hover:text-sage",
-      )}
-    >
-      {children}
-    </button>
   );
 }

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { Card, Eyebrow, Pill, ProgressRing, buttonClass } from "@/app/components/ui";
+import { Card, Eyebrow, IconTile, Pill, ProgressRing, buttonClass } from "@/app/components/ui";
 import {
   CameraIcon,
   ChatIcon,
@@ -118,7 +118,7 @@ export function KonsultasiView() {
             </Eyebrow>
             <Pill>
               <span className="h-1.5 w-1.5 rounded-full bg-sage" />
-              Raifu Bot v2.4 (Aktif · Respons Instan)
+              Raifu Bot (Aktif · Respons Instan)
             </Pill>
           </p>
           <h1 className="mt-3 font-serif text-3xl text-ink sm:text-4xl">
@@ -131,9 +131,9 @@ export function KonsultasiView() {
         </div>
 
         <Card className="flex items-center gap-5 p-4">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-sage-soft text-sage">
+          <IconTile>
             <ChatIcon className="h-5 w-5" />
-          </span>
+          </IconTile>
           <p className="border-r border-line pr-5">
             <span className="block text-xs tracking-[0.12em] text-muted uppercase">
               Mode Percakapan
@@ -179,7 +179,7 @@ export function KonsultasiView() {
             <div className="min-w-0 flex-1">
               <p className="flex flex-wrap items-center gap-2">
                 <span className="font-serif text-base text-ink">
-                  Raifu Mindful Intelligence
+                  Asisten Edukasi Raifu
                 </span>
                 <Pill>Gizi Seimbang</Pill>
               </p>
@@ -191,7 +191,7 @@ export function KonsultasiView() {
               type="button"
               onClick={reset}
               aria-label="Mulai percakapan baru"
-              className="grid h-8 w-8 place-items-center rounded-md text-muted transition-colors hover:bg-white hover:text-sage"
+              className="grid h-11 w-11 place-items-center rounded-md text-muted transition-colors hover:bg-white hover:text-sage"
             >
               <RefreshIcon className="h-4 w-4" />
             </button>
@@ -275,7 +275,7 @@ export function KonsultasiView() {
                   {[0, 150, 300].map((delay) => (
                     <span
                       key={delay}
-                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-sage"
+                      className="h-1.5 w-1.5 animate-pulse rounded-full bg-sage"
                       style={{ animationDelay: `${delay}ms` }}
                     />
                   ))}

@@ -87,7 +87,7 @@ export function SiteNav() {
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-controls="menu-mobile"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-line text-ink lg:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-line text-ink lg:hidden"
           >
             <span className="sr-only">{open ? "Tutup menu" : "Buka menu"}</span>
             <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6">

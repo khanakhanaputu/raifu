@@ -16,7 +16,7 @@ import {
 } from "./components/icons";
 
 const HERO_STATS = [
-  { value: "94.8%", label: "Akurasi Scan AI" },
+  { value: "Instan", label: "Estimasi Nutrisi" },
   { value: "14+ Hari", label: "Rerata Streak Pemula" },
   { value: "10.000+", label: "Menu Terverifikasi" },
 ];
@@ -74,9 +74,9 @@ const TESTIMONIALS = [
   },
   {
     quote:
-      "Sebagai nutritionist klinis, saya sering merekomendasikan Raifu pada klien karena pendekatan Hara Hachi Bu membantu mencegah overeating secara alamiah.",
-    name: "dr. Kenji Pramana, Sp.GK",
-    role: "Dokter Gizi Klinis, Bandung",
+      "Pendekatan Hara Hachi Bu di Raifu bikin saya berhenti overeating tanpa harus maksa diri diet ketat. Rasanya lebih seperti kebiasaan, bukan aturan.",
+    name: "Kenji Pramana",
+    role: "Pengguna Aktif, Bandung",
   },
   {
     quote:
@@ -170,7 +170,7 @@ function Hero() {
 function ScanPreviewCard() {
   return (
     <div className="relative">
-      <span className="absolute -top-4 right-2 z-10 inline-flex items-center gap-1.5 rounded-full bg-sage-soft px-3.5 py-2 text-xs font-semibold tracking-[0.08em] text-sage uppercase shadow-sm">
+      <span className="absolute -top-4 right-2 z-10 inline-flex items-center gap-1.5 rounded-full border border-line bg-sage-soft px-3.5 py-2 text-xs font-semibold tracking-[0.08em] text-sage uppercase">
         <LeafIcon className="h-3.5 w-3.5" />
         14 Hari Streak
       </span>
@@ -181,7 +181,7 @@ function ScanPreviewCard() {
             Pindai Makanan
           </span>
           <span className="rounded-md bg-mist px-2.5 py-1 text-xs text-ink">
-            AI Vision 2.4
+            Pratinjau Estimasi
           </span>
           <SaveIcon className="ml-auto h-5 w-5 text-sage" />
         </figcaption>
@@ -196,25 +196,24 @@ function ScanPreviewCard() {
             priority
           />
 
-          <span className="absolute top-4 left-4 rounded bg-sage/85 px-3 py-1.5 text-xs text-white backdrop-blur-sm">
-            Salmon Teishoku Plate
-          </span>
-          <span className="absolute top-4 right-4 rounded bg-sage/85 px-3 py-1.5 text-xs text-white backdrop-blur-sm">
-            Keyakinan: 98%
+          <span className="absolute top-4 left-4 rounded-md bg-sage/85 px-3 py-1.5 text-xs text-white backdrop-blur-sm">
+            Contoh Ilustrasi
           </span>
 
           <span
             aria-hidden
-            className="absolute inset-x-6 top-1/2 h-px bg-white/70 shadow-[0_0_12px_2px_rgba(255,255,255,0.45)]"
+            className="absolute inset-x-6 top-1/2 h-px bg-white/80"
           />
 
-          <span className="absolute bottom-4 left-4 rounded bg-sage/85 px-3 py-1.5 text-xs text-white backdrop-blur-sm">
-            Porsi Terukur: ~240g
-          </span>
-          <span className="absolute right-4 bottom-4 rounded bg-sage/85 px-3 py-1.5 text-xs text-white backdrop-blur-sm">
+          <span className="absolute right-4 bottom-4 rounded-md bg-sage/85 px-3 py-1.5 text-xs text-white backdrop-blur-sm">
             Hara Hachi Bu: 80% Kenyang
           </span>
         </div>
+
+        <p className="mt-4 flex items-baseline justify-between gap-2 text-xs text-muted">
+          <span>Salmon Teishoku Plate</span>
+          <span>Porsi Terukur: ~240g</span>
+        </p>
 
         <div className="mt-5 flex flex-wrap items-baseline justify-between gap-2">
           <p className="flex items-baseline gap-1.5">
@@ -484,7 +483,6 @@ function FinalCta() {
 
 function initials(name: string) {
   return name
-    .replace(/(dr\.|Sp\.GK)/gi, "")
     .trim()
     .split(/\s+/)
     .slice(0, 2)

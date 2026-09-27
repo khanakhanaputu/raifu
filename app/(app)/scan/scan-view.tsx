@@ -5,12 +5,12 @@ import { useEffect, useRef, useState } from "react";
 import {
   Card,
   Eyebrow,
+  IconTile,
   Pill,
   buttonClass,
   cx,
 } from "@/app/components/ui";
 import {
-  CameraIcon,
   CheckCircleIcon,
   LeafIcon,
   PencilIcon,
@@ -265,43 +265,20 @@ export function ScanView() {
                   <div className="absolute inset-0 grid place-items-center bg-ink/45 backdrop-blur-[2px]">
                     <div className="text-center text-white">
                       <span className="mx-auto block h-10 w-10 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                      <p className="mt-4 text-sm">Menganalisis komposisi nutrisi…</p>
-                      <p className="mt-1 text-xs text-white/70">
-                        Raifu Vision v2.4 · Oishii-AI
+                      <p className="mt-4 text-sm">
+                        {customImage
+                          ? "Mencari hidangan serupa…"
+                          : "Menyiapkan estimasi nutrisi…"}
                       </p>
                     </div>
                   </div>
                 ) : (
                   <>
-                    <span className="absolute top-4 right-4 flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-xs text-ink">
-                      <span className="h-1.5 w-1.5 rounded-full bg-sage" />
-                      {sample.components.length} Komponen Terdeteksi
-                    </span>
-
-                    {sample.components.slice(0, 3).map((component, index) => (
-                      <span
-                        key={component.label}
-                        className="absolute rounded bg-white/92 px-2.5 py-1 text-xs text-ink shadow-sm"
-                        style={{
-                          top: `${22 + index * 22}%`,
-                          left: index % 2 === 0 ? "12%" : "auto",
-                          right: index % 2 === 0 ? "auto" : "10%",
-                        }}
-                      >
-                        {component.label}
-                        <span className="ml-2 text-sage">{component.match}%</span>
-                      </span>
-                    ))}
-
-                    <span className="absolute bottom-4 left-4 flex items-center gap-2 rounded bg-ink/70 px-3 py-1.5 text-xs text-white backdrop-blur-sm">
-                      <CameraIcon className="h-3.5 w-3.5" />
-                      Raifu Vision v2.4 (Oishii-AI)
-                    </span>
                     <button
                       type="button"
                       onClick={() => runAnalysis(sample, customImage)}
                       aria-label="Pindai ulang"
-                      className="absolute right-4 bottom-4 grid h-9 w-9 place-items-center rounded-full bg-white/90 text-ink transition-colors hover:text-sage"
+                      className="absolute right-4 bottom-4 grid h-11 w-11 place-items-center rounded-full bg-white/90 text-ink transition-colors hover:text-sage"
                     >
                       <RefreshIcon className="h-4 w-4" />
                     </button>
@@ -313,15 +290,15 @@ export function ScanView() {
 
           <Card className="flex flex-wrap items-center justify-between gap-4 p-5">
             <p className="flex items-start gap-3">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-sage-soft text-sage">
+              <IconTile>
                 <SparkleIcon className="h-5 w-5" />
-              </span>
+              </IconTile>
               <span>
                 <span className="block text-sm font-medium text-ink">
-                  Estimasi Akurasi {sample.confidence}.4%
+                  Estimasi Nutrisi
                 </span>
                 <span className="block text-xs text-body">
-                  Model dilatih dengan &gt;1.200 hidangan Nusantara &amp; Jepang Sehat
+                  Berdasarkan data hidangan serupa yang telah dikurasi
                 </span>
               </span>
             </p>
@@ -336,10 +313,7 @@ export function ScanView() {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="flex flex-wrap items-center gap-3">
-                <Pill>Terverifikasi AI</Pill>
-                <span className="text-xs text-body">
-                  {sample.confidence}% Confidence
-                </span>
+                <Pill>Estimasi dari Hidangan Serupa</Pill>
               </p>
               <h2 className="mt-3 font-serif text-2xl text-ink">{sample.name}</h2>
               <p className="mt-1 max-w-sm text-sm text-body">{sample.detail}</p>

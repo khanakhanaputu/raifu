@@ -99,6 +99,51 @@ export function Pill({
   );
 }
 
+type IconTileSize = "md" | "lg" | "xl";
+type IconTileTone = "soft" | "white";
+
+const ICON_TILE_SIZES: Record<IconTileSize, string> = {
+  md: "h-10 w-10",
+  lg: "h-11 w-11",
+  xl: "h-12 w-12",
+};
+
+const ICON_TILE_TONES: Record<IconTileTone, string> = {
+  soft: "bg-sage-soft text-sage",
+  white: "bg-white text-sage",
+};
+
+export function IconTile({
+  children,
+  size = "md",
+  tone = "soft",
+  rounded = "lg",
+  shrink = true,
+  className,
+}: {
+  children: ReactNode;
+  size?: IconTileSize;
+  tone?: IconTileTone;
+  rounded?: "md" | "lg";
+  shrink?: boolean;
+  className?: string;
+}) {
+  return (
+    <span
+      className={cx(
+        "grid place-items-center",
+        ICON_TILE_SIZES[size],
+        rounded === "lg" ? "rounded-lg" : "rounded-md",
+        ICON_TILE_TONES[tone],
+        shrink && "shrink-0",
+        className,
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
 export function ProgressBar({
   value,
   tone = "sage",
@@ -195,6 +240,42 @@ export function MacroRow({
       </div>
       <ProgressBar className="mt-2" value={percent} label={`${label} ${percent}%`} />
     </div>
+  );
+}
+
+type FilterChipVariant = "mist" | "outline";
+
+const FILTER_CHIP_INACTIVE: Record<FilterChipVariant, string> = {
+  mist: "bg-mist text-body hover:text-sage",
+  outline: "border border-line bg-white text-body hover:border-sage hover:text-sage",
+};
+
+export function FilterChip({
+  active,
+  onClick,
+  variant = "mist",
+  children,
+  className,
+}: {
+  active: boolean;
+  onClick: () => void;
+  variant?: FilterChipVariant;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cx(
+        "rounded-full px-3.5 py-1.5 text-xs transition-colors",
+        active ? "bg-sage text-white" : FILTER_CHIP_INACTIVE[variant],
+        className,
+      )}
+    >
+      {children}
+    </button>
   );
 }
 

@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-26T00:00:00Z",
+  "title": "Design System: Raifu",
+  "extensions": {
+    "colorMeta": {
+      "sage": { "role": "primary", "displayName": "Deep Forest Sage", "canonical": "#426449", "tonalRamp": ["#16221a", "#1f3225", "#2a4230", "#35523b", "#426449", "#5a7f5e", "#8ba98d", "#c4d9c5"] },
+      "sage-dark": { "role": "primary", "displayName": "Sage Dark (hover)", "canonical": "#35523b", "tonalRamp": ["#0f1911", "#182417", "#243624", "#2c422d", "#35523b", "#4c6d4e", "#7a987b", "#b6d1b7"] },
+      "sage-mid": { "role": "primary", "displayName": "Sage Mid", "canonical": "#4a6c51", "tonalRamp": ["#182117", "#22321f", "#2f4429", "#3d5a37", "#4a6c51", "#658569", "#93ac95", "#c9deca"] },
+      "sage-soft": { "role": "primary", "displayName": "Sage Soft", "canonical": "#e8efe7", "tonalRamp": ["#2a3a2c", "#43593f", "#638064", "#8aa889", "#b7ccb4", "#d6e5d3", "#e8efe7", "#f6f9f5"] },
+      "sage-tint": { "role": "primary", "displayName": "Sage Tint", "canonical": "#f2f6f1", "tonalRamp": ["#2c3a2c", "#455943", "#658065", "#8ba88a", "#b8ccb5", "#dceada", "#f2f6f1", "#fafcf9"] },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#1c1b1b", "tonalRamp": ["#050505", "#111010", "#1c1b1b", "#333131", "#4d4a4a", "#6b6767", "#9a9494", "#d4cece"] },
+      "body": { "role": "neutral", "displayName": "Body Gray", "canonical": "#5f5d5d", "tonalRamp": ["#161515", "#292828", "#3d3b3b", "#4f4d4d", "#5f5d5d", "#7c7979", "#a3a0a0", "#cfcccc"] },
+      "muted": { "role": "neutral", "displayName": "Muted Gray", "canonical": "#8a8787", "tonalRamp": ["#232222", "#3a3838", "#524f4f", "#6b6868", "#8a8787", "#a6a3a3", "#c6c3c3", "#e6e4e4"] },
+      "cream": { "role": "neutral", "displayName": "Cream", "canonical": "#fcf9f8", "tonalRamp": ["#3a3532", "#5c5450", "#847a75", "#ada29c", "#d3cac6", "#e9e3e1", "#fcf9f8", "#fefefe"] },
+      "mist": { "role": "neutral", "displayName": "Mist", "canonical": "#f6f3f2", "tonalRamp": ["#38332f", "#584f4a", "#7d716b", "#a4968f", "#cabfbb", "#e3dcda", "#f6f3f2", "#fdfcfc"] },
+      "stone": { "role": "neutral", "displayName": "Stone", "canonical": "#f0eded", "tonalRamp": ["#2e2b2b", "#4b4747", "#6d6868", "#928c8c", "#b9b3b3", "#dbd6d6", "#f0eded", "#fbfafa"] },
+      "line": { "role": "neutral", "displayName": "Hairline", "canonical": "#eae7e7", "tonalRamp": ["#2b2828", "#464242", "#676262", "#8c8686", "#b4aeae", "#d7d3d3", "#eae7e7", "#faf9f9"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero headlines, section H1s, and stat numbers users should feel oriented or proud of (kcal targets, streak counts, BMI)." },
+      "headline": { "displayName": "Headline", "purpose": "Section headers within a page." },
+      "title": { "displayName": "Title", "purpose": "Card/component titles nested under a headline." },
+      "body": { "displayName": "Body", "purpose": "Paragraph copy and descriptions." },
+      "label": { "displayName": "Label", "purpose": "Eyebrows, stat captions, section tags — uppercase wide-tracked." }
+    },
+    "shadows": [
+      { "name": "hero-float", "value": "0 24px 60px -30px rgba(28,27,27,0.35)", "purpose": "Reserved for the single most important visual artifact on a page (e.g. landing-page AI-scan preview card)." }
+    ],
+    "motion": [
+      { "name": "color-transition", "value": "transition-colors (Tailwind default ~150ms ease)", "purpose": "Default hover/focus color shift on buttons, links, nav items." },
+      { "name": "width-transition", "value": "transition-[width] duration-500", "purpose": "Progress bar/ring fill animation." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main call-to-action button; solid sage, white text.",
+      "html": "<button class=\"ds-btn-primary\">Mulai Sekarang</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #426449; color: #ffffff; border: none; border-radius: 8px; padding: 10px 16px; font-size: 14px; font-weight: 500; transition: background-color 0.15s ease; } .ds-btn-primary:hover { background: #35523b; } .ds-btn-primary:focus-visible { outline: 2px solid #426449; outline-offset: 2px; } .ds-btn-primary:disabled { cursor: not-allowed; opacity: 0.6; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Bordered white button for secondary actions.",
+      "html": "<button class=\"ds-btn-secondary\">Pelajari Fitur</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #ffffff; color: #1c1b1b; border: 1px solid #eae7e7; border-radius: 8px; padding: 10px 16px; font-size: 14px; font-weight: 500; transition: border-color 0.15s ease, color 0.15s ease; } .ds-btn-secondary:hover { border-color: #426449; color: #426449; } .ds-btn-secondary:focus-visible { outline: 2px solid #426449; outline-offset: 2px; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Default content container: white surface, hairline border, no shadow.",
+      "html": "<section class=\"ds-card\"><p class=\"ds-card-eyebrow\">Target Asupan Harian</p><p class=\"ds-card-stat\">1.847 <span>kkal / hari</span></p></section>",
+      "css": ".ds-card { background: #ffffff; border: 1px solid #eae7e7; border-radius: 12px; padding: 24px; } .ds-card-eyebrow { font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: #8a8787; margin: 0; } .ds-card-stat { font-family: 'Shippori Mincho', Georgia, serif; font-weight: 600; font-size: 28px; color: #1c1b1b; margin: 8px 0 0; } .ds-card-stat span { font-family: Inter, ui-sans-serif, system-ui, sans-serif; font-size: 14px; color: #5f5d5d; font-weight: 400; margin-left: 4px; }"
+    },
+    {
+      "name": "Pill (Sage)",
+      "kind": "chip",
+      "refersTo": "pill-sage",
+      "description": "Default informational pill/badge — eyebrow tags, suggestion chips.",
+      "html": "<span class=\"ds-pill-sage\"><svg viewBox=\"0 0 16 16\" width=\"14\" height=\"14\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\"><path d=\"M13 3C7.5 3 4 5.5 4 9.5a3.5 3.5 0 003.5 3.5C11 13 13 9 13 3z\" stroke-linejoin=\"round\"/><path d=\"M11 5.5C8.5 7 6.5 9.5 5.5 13\" stroke-linecap=\"round\"/></svg>14 Hari Streak</span>",
+      "css": ".ds-pill-sage { display: inline-flex; align-items: center; gap: 6px; background: #e8efe7; color: #426449; border-radius: 9999px; padding: 4px 12px; font-size: 12px; font-weight: 500; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Standard form field with sage focus ring.",
+      "html": "<input class=\"ds-field\" placeholder=\"Ketik pertanyaan nutrisi…\" />",
+      "css": ".ds-field { width: 100%; background: #ffffff; border: 1px solid #eae7e7; border-radius: 8px; padding: 10px 14px; font-size: 14px; color: #1c1b1b; outline: none; transition: border-color 0.15s ease, box-shadow 0.15s ease; } .ds-field::placeholder { color: #8a8787; } .ds-field:focus { border-color: #426449; box-shadow: 0 0 0 2px rgba(66, 100, 73, 0.2); }"
+    },
+    {
+      "name": "Progress Ring",
+      "kind": "custom",
+      "refersTo": "progress-ring",
+      "description": "Signature conic-gradient progress indicator; always single-hue sage regardless of value.",
+      "html": "<div class=\"ds-ring\" style=\"background: conic-gradient(#426449 252deg, #e8efe7 0deg);\"><div class=\"ds-ring-inner\">70%</div></div>",
+      "css": ".ds-ring { width: 112px; height: 112px; border-radius: 9999px; display: grid; place-items: center; } .ds-ring-inner { width: 96px; height: 96px; border-radius: 9999px; background: #ffffff; display: grid; place-items: center; font-size: 14px; font-weight: 600; color: #1c1b1b; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Ryokan",
+    "overview": "Raifu reads like the entrance to a calm Japanese inn: soft sage and warm cream tones, generous whitespace, a serif display face for moments that matter, and quiet borders instead of shadows doing the organizing. Nothing shouts. Numbers (calorie targets, macros, streak counts) get the display serif treatment so they feel like considered facts, not alarms — the opposite of a fitness app's urgency dashboard. The system explicitly rejects loud fitness-app energy: no countdown timers, no red/orange danger-zone bars, no gamified urgency cues. Progress (rings, bars) always renders in the single sage accent, never a traffic-light palette. This mirrors the product's \"no guilt tracking\" principle from PRODUCT.md — the visual system must never make a number look like a failure.",
+    "keyCharacteristics": [
+      "Sage-and-cream palette with a single accent color used sparingly (never a full-saturation 'brand wash')",
+      "Serif display type (Shippori Mincho) for headlines and hero numbers; Inter for everything functional",
+      "Flat-by-default surfaces bordered in a near-invisible hairline, not shadowed",
+      "Occasional Japanese script (楽, 腹八分目) as philosophy marks, not a translation layer",
+      "Rounded, soft-edged geometry throughout — no sharp corners, no aggressive shapes"
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "Sage is the only color that carries meaning (selected, active, progress, success). No second accent color exists; do not introduce blue links, red errors, or orange warnings without a documented reason.", "section": "colors" },
+      { "name": "The No Alarm Rule", "body": "Never use red, orange, or amber to represent calorie overage, missed streaks, or incomplete goals. A missed day or exceeded target renders in the same neutral/sage vocabulary as everything else.", "section": "colors" },
+      { "name": "The Serif-For-Facts Rule", "body": "Any number the user should feel proud of or oriented by (kcal target, streak count, BMI, macro grams) renders in the serif display font with tabular-nums, never in the body sans.", "section": "typography" },
+      { "name": "The Flat-Except-One Rule", "body": "A page gets at most one shadowed 'hero' element. Every other surface stays flat and relies on border/tone for separation.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use the serif display face with tabular-nums for any number the user should feel oriented or proud of (targets, totals, streak counts, BMI).",
+      "Do separate surfaces with the border-line hairline or a tonal background shift before reaching for a shadow.",
+      "Do keep all progress indicators (rings, bars) in the single sage accent regardless of value.",
+      "Do use the uppercase, wide-tracked Eyebrow label style for section tags and stat captions."
+    ],
+    "donts": [
+      "Don't introduce a second accent color (blue, purple, teal) for links, selection, or emphasis — sage is the only accent.",
+      "Don't use red/orange/amber to signal exceeded calories, missed streaks, or incomplete goals — this breaks the no-guilt product principle.",
+      "Don't add drop shadows to ordinary cards or panels; reserve the single soft shadow for one hero artifact per page at most.",
+      "Don't introduce sharp corners, dense data-table spacing, or countdown-timer urgency patterns — they read as generic fitness-app energy, which this system explicitly rejects."
+    ]
+  }
+}

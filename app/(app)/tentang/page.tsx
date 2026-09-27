@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Card, Eyebrow, Pill } from "@/app/components/ui";
+import { Card, Eyebrow, IconTile, Pill } from "@/app/components/ui";
 import {
   BowlIcon,
   CheckCircleIcon,
@@ -164,9 +164,9 @@ export default function TentangPage() {
           {AUDIENCE.map((item) => (
             <li key={item.title}>
               <Card className="h-full p-6">
-                <span className="grid h-10 w-10 place-items-center rounded-lg bg-sage-soft text-sage">
+                <IconTile shrink={false}>
                   {item.icon}
-                </span>
+                </IconTile>
                 <h3 className="mt-4 font-serif text-lg leading-snug text-ink">
                   {item.title}
                 </h3>

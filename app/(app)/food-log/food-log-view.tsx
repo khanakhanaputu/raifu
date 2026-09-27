@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import {
   Card,
   Eyebrow,
+  IconTile,
   Pill,
   ProgressRing,
   buttonClass,
@@ -110,7 +111,7 @@ export function FoodLogView() {
               type="button"
               onClick={() => setDate(shiftDate(activeDate, -1))}
               aria-label="Hari sebelumnya"
-              className="grid h-8 w-8 place-items-center rounded text-muted transition-colors hover:bg-mist hover:text-ink"
+              className="grid h-11 w-11 place-items-center rounded text-muted transition-colors hover:bg-mist hover:text-ink"
             >
               <ChevronLeftIcon className="h-4 w-4" />
             </button>
@@ -122,7 +123,7 @@ export function FoodLogView() {
               onClick={() => setDate(shiftDate(activeDate, 1))}
               aria-label="Hari berikutnya"
               disabled={isToday}
-              className="grid h-8 w-8 place-items-center rounded text-muted transition-colors hover:bg-mist hover:text-ink disabled:opacity-40 disabled:hover:bg-transparent"
+              className="grid h-11 w-11 place-items-center rounded text-muted transition-colors hover:bg-mist hover:text-ink disabled:opacity-40 disabled:hover:bg-transparent"
             >
               <ChevronRightIcon className="h-4 w-4" />
             </button>
@@ -266,9 +267,9 @@ export function FoodLogView() {
                 className="flex flex-col gap-4 border-dashed bg-white/60 p-6 lg:flex-row lg:items-center lg:justify-between"
               >
                 <div className="flex items-start gap-4">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-sage-soft text-sage">
+                  <IconTile>
                     <BowlIcon className="h-5 w-5" />
-                  </span>
+                  </IconTile>
                   <div>
                     <h2 className="flex flex-wrap items-center gap-2 font-serif text-xl text-ink">
                       {meta.label}
@@ -303,9 +304,9 @@ export function FoodLogView() {
             <Card key={meta.value} className="overflow-hidden">
               <div className="flex flex-wrap items-center justify-between gap-4 bg-mist px-6 py-4">
                 <div className="flex items-center gap-4">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white text-sage">
+                  <IconTile tone="white">
                     <JournalIcon className="h-5 w-5" />
-                  </span>
+                  </IconTile>
                   <div>
                     <h2 className="flex flex-wrap items-center gap-2 font-serif text-xl text-ink">
                       {meta.label}
@@ -313,7 +314,7 @@ export function FoodLogView() {
                       {items.some((entry) => entry.source === "scan") && (
                         <Pill>
                           <ScanIcon className="h-3 w-3" />
-                          Scanned with AI
+                          Estimasi dari Scan
                         </Pill>
                       )}
                     </h2>
@@ -379,12 +380,12 @@ export function FoodLogView() {
                       </p>
                     </div>
 
-                    <div className="flex shrink-0 items-center gap-1">
+                    <div className="flex shrink-0 items-center">
                       <button
                         type="button"
                         onClick={() => openEdit(entry)}
                         aria-label={`Ubah ${entry.name}`}
-                        className="grid h-8 w-8 place-items-center rounded-md text-muted transition-colors hover:bg-mist hover:text-sage"
+                        className="grid h-11 w-11 place-items-center rounded-md text-muted transition-colors hover:bg-mist hover:text-sage"
                       >
                         <PencilIcon className="h-4 w-4" />
                       </button>
@@ -392,7 +393,7 @@ export function FoodLogView() {
                         type="button"
                         onClick={() => removeEntry(entry.id)}
                         aria-label={`Hapus ${entry.name}`}
-                        className="grid h-8 w-8 place-items-center rounded-md text-muted transition-colors hover:bg-mist hover:text-sage"
+                        className="grid h-11 w-11 place-items-center rounded-md text-muted transition-colors hover:bg-mist hover:text-sage"
                       >
                         <TrashIcon className="h-4 w-4" />
                       </button>

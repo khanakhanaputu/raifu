@@ -69,7 +69,7 @@ export function AppNav() {
 
           <button
             type="button"
-            className="hidden h-9 w-9 items-center justify-center rounded-md text-body transition-colors hover:text-sage sm:inline-flex"
+            className="hidden h-11 w-11 items-center justify-center rounded-md text-body transition-colors hover:text-sage sm:inline-flex"
             aria-label="Notifikasi"
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -81,7 +81,7 @@ export function AppNav() {
           <Link
             href="/profil"
             aria-label="Profil & pengaturan"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-line bg-white transition-colors hover:border-sage"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line bg-white transition-colors hover:border-sage"
           >
             <span className="font-serif text-xs text-sage">
               {state.profile.name
@@ -97,7 +97,7 @@ export function AppNav() {
             onClick={() => setOpen((value) => !value)}
             aria-expanded={open}
             aria-controls="app-menu-mobile"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-line text-ink xl:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-line text-ink xl:hidden"
           >
             <span className="sr-only">{open ? "Tutup menu" : "Buka menu"}</span>
             <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6">

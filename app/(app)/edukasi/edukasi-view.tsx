@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Card, Eyebrow, Pill, buttonClass, cx, fieldClass } from "@/app/components/ui";
+import { Card, Eyebrow, FilterChip, IconTile, Pill, buttonClass, cx, fieldClass } from "@/app/components/ui";
 import {
   BookmarkIcon,
   JournalIcon,
@@ -54,20 +54,14 @@ export function EdukasiView() {
 
       <div className="flex flex-wrap gap-2">
         {ARTICLE_CATEGORIES.map((item) => (
-          <button
+          <FilterChip
             key={item}
-            type="button"
+            active={category === item}
             onClick={() => setCategory(item)}
-            aria-pressed={category === item}
-            className={cx(
-              "rounded-full px-4 py-2 text-xs transition-colors",
-              category === item
-                ? "bg-sage text-white"
-                : "border border-line bg-white text-body hover:border-sage hover:text-sage",
-            )}
+            variant="outline"
           >
             {item}
-          </button>
+          </FilterChip>
         ))}
       </div>
 
@@ -133,14 +127,14 @@ export function EdukasiView() {
 
       <ul className="grid gap-4 rounded-xl bg-mist p-5 sm:grid-cols-3">
         {[
-          { icon: <JournalIcon className="h-5 w-5" />, value: "34 Jurnal", label: "Riset Berbasis Bukti Medis" },
+          { icon: <JournalIcon className="h-5 w-5" />, value: `${ARTICLES.length} Jurnal`, label: "Riset Berbasis Bukti Medis" },
           { icon: <LeafIcon className="h-5 w-5" />, value: "80% Kapasitas", label: "Prinsip Kepuasan Otonom" },
           { icon: <BookmarkIcon className="h-5 w-5" />, value: "Ritual Harian", label: "Penyelarasan Tubuh & Jiwa" },
         ].map((stat) => (
           <li key={stat.value} className="flex items-center gap-4">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-white text-sage">
+            <IconTile tone="white">
               {stat.icon}
-            </span>
+            </IconTile>
             <span>
               <span className="block font-serif text-lg text-ink">{stat.value}</span>
               <span className="block text-xs text-body">{stat.label}</span>
@@ -274,7 +268,7 @@ export function EdukasiView() {
 
         {subscribed && (
           <p role="status" className="mt-4 text-sm text-sage">
-            Terima kasih. Jurnal pertama akan tiba Minggu pagi ini.
+            Terima kasih atas minat Anda pada wawasan Raifu.
           </p>
         )}
       </section>

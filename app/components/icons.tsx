@@ -298,6 +298,24 @@ export function ChatIcon({ className }: IconProps) {
   );
 }
 
+export function LogoutIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M9 20H6a2 2 0 01-2-2V6a2 2 0 012-2h3" />
+      <path d="M16 16l4-4-4-4M20 12H9" />
+    </svg>
+  );
+}
+
+export function LockIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <rect x="5" y="10.5" width="14" height="9.5" rx="2" />
+      <path d="M8 10.5V7.5a4 4 0 018 0v3" />
+    </svg>
+  );
+}
+
 export function TorchIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className}>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Card, Eyebrow, Pill, ProgressBar, buttonClass, cx } from "@/app/components/ui";
+import { Card, Eyebrow, IconTile, Pill, ProgressBar, buttonClass, cx } from "@/app/components/ui";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -175,7 +175,7 @@ export function StreakView() {
                 type="button"
                 onClick={() => shiftMonth(-1)}
                 aria-label="Bulan sebelumnya"
-                className="grid h-8 w-8 place-items-center rounded-md border border-line text-muted transition-colors hover:text-sage"
+                className="grid h-11 w-11 place-items-center rounded-md border border-line text-muted transition-colors hover:text-sage"
               >
                 <ChevronLeftIcon className="h-4 w-4" />
               </button>
@@ -190,7 +190,7 @@ export function StreakView() {
                 type="button"
                 onClick={() => shiftMonth(1)}
                 aria-label="Bulan berikutnya"
-                className="grid h-8 w-8 place-items-center rounded-md border border-line text-muted transition-colors hover:text-sage"
+                className="grid h-11 w-11 place-items-center rounded-md border border-line text-muted transition-colors hover:text-sage"
               >
                 <ChevronRightIcon className="h-4 w-4" />
               </button>
@@ -298,8 +298,8 @@ export function StreakView() {
                 },
                 {
                   icon: <LeafIcon className="h-5 w-5" />,
-                  label: "Teranalisis Presisi AI",
-                  caption: "Melalui Raifu Vision",
+                  label: "Dicatat via Scan",
+                  caption: "Estimasi dari foto makanan",
                   value: String(entriesAnalyzed),
                   unit: "scan",
                 },
@@ -308,9 +308,9 @@ export function StreakView() {
                   key={stat.label}
                   className="flex items-center gap-4 rounded-lg bg-mist p-4"
                 >
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-white text-sage">
+                  <IconTile tone="white" rounded="md">
                     {stat.icon}
-                  </span>
+                  </IconTile>
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-medium text-ink">
                       {stat.label}
@@ -339,7 +339,7 @@ export function StreakView() {
               Satu piring hari ini mengukuhkan stabilitas energi esok pagi.
             </p>
             <p className="mt-5 flex items-center justify-between text-xs text-white/70">
-              Kompilasi Pekanan #3
+              Refleksi Mingguan
               <LeafIcon className="h-4 w-4" />
             </p>
           </div>
@@ -445,9 +445,9 @@ export function StreakView() {
 
       <Card className="flex flex-col gap-4 bg-mist p-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-start gap-4">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-white text-xl">
-            🧘
-          </span>
+          <IconTile size="lg" tone="white">
+            <LeafIcon className="h-5 w-5" />
+          </IconTile>
           <div>
             <h2 className="font-serif text-xl text-ink">
               Filsafat Kaizen <span className="font-jp">(改善)</span>
