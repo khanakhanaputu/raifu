@@ -22,6 +22,7 @@ export type ProfileRow = {
   joined_label: string;
   xp: number;
   onboarded: boolean;
+  newsletter_subscribed: boolean;
 };
 
 export function rowToProfile(row: ProfileRow): Profile {
@@ -38,6 +39,7 @@ export function rowToProfile(row: ProfileRow): Profile {
     goal: row.goal,
     joinedLabel: row.joined_label,
     xp: row.xp,
+    newsletterSubscribed: row.newsletter_subscribed,
   };
 }
 
@@ -58,6 +60,8 @@ export function profilePatchToRow(
   if (patch.joinedLabel !== undefined) row.joined_label = patch.joinedLabel;
   if (patch.xp !== undefined) row.xp = patch.xp;
   if (patch.onboarded !== undefined) row.onboarded = patch.onboarded;
+  if (patch.newsletterSubscribed !== undefined)
+    row.newsletter_subscribed = patch.newsletterSubscribed;
   return row;
 }
 

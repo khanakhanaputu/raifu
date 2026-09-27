@@ -63,6 +63,7 @@ const EMPTY_PROFILE: Profile = {
   goal: "jaga",
   joinedLabel: "",
   xp: 0,
+  newsletterSubscribed: false,
 };
 
 function emptyState(): RaifuState {

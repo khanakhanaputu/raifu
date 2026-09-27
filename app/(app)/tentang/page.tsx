@@ -55,7 +55,7 @@ const PRINCIPLES = [
   {
     title: "Data Milik Penggunanya",
     description:
-      "Pada prototipe ini seluruh catatan disimpan di perangkat Anda sendiri. Foto makanan diproses di peramban dan tidak diunggah ke server mana pun.",
+      "Seluruh catatan tersimpan aman di server dan hanya bisa diakses lewat akun Anda sendiri. Foto makanan diproses di peramban dan tidak diunggah ke server mana pun.",
   },
   {
     title: "Kearifan Jepang, Bahan Nusantara",
@@ -88,7 +88,7 @@ const FAQ = [
   {
     question: "Apakah data saya dikirim ke server?",
     answer:
-      "Tidak pada prototipe ini. Seluruh catatan makanan, profil, dan pengaturan tersimpan di penyimpanan lokal peramban Anda dan dapat dipulihkan ke kondisi awal kapan saja dari halaman Profil.",
+      "Ya. Seluruh catatan makanan, profil, dan pengaturan tersimpan aman di server dan dilindungi kebijakan akses tingkat baris, sehingga hanya bisa dibaca lewat akun Anda sendiri.",
   },
 ];
 

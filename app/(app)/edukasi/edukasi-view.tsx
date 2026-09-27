@@ -12,11 +12,12 @@ import {
   ArrowRightIcon,
 } from "@/app/components/icons";
 import { ARTICLES, ARTICLE_CATEGORIES } from "@/lib/content";
+import { useRaifu } from "@/lib/store";
 
 export function EdukasiView() {
+  const { state, updateProfile } = useRaifu();
   const [category, setCategory] = useState<string>(ARTICLE_CATEGORIES[0]);
-  const [email, setEmail] = useState("");
-  const [subscribed, setSubscribed] = useState(false);
+  const [email, setEmail] = useState(state.profile.email);
 
   const featured = ARTICLES.find((article) => article.featured) ?? ARTICLES[0];
 
@@ -245,7 +246,11 @@ export function EdukasiView() {
         <form
           onSubmit={(event) => {
             event.preventDefault();
-            if (email.includes("@")) setSubscribed(true);
+            if (!email.includes("@")) return;
+            updateProfile({
+              email,
+              newsletterSubscribed: true,
+            });
           }}
           className="mx-auto mt-6 flex max-w-lg flex-wrap items-center justify-center gap-3"
         >
@@ -262,11 +267,13 @@ export function EdukasiView() {
             className={cx(fieldClass, "max-w-xs flex-1")}
           />
           <button type="submit" className={buttonClass("primary")}>
-            Dapatkan Wawasan Mingguan
+            {state.profile.newsletterSubscribed
+              ? "Perbarui Langganan"
+              : "Dapatkan Wawasan Mingguan"}
           </button>
         </form>
 
-        {subscribed && (
+        {state.profile.newsletterSubscribed && (
           <p role="status" className="mt-4 text-sm text-sage">
             Terima kasih atas minat Anda pada wawasan Raifu.
           </p>

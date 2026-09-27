@@ -112,7 +112,7 @@ export function KonsultasiView() {
     <div className="mx-auto max-w-[1400px] space-y-6 px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-2xl">
-          <p className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <Eyebrow>
               Asisten Gizi Sadar · <span className="font-jp">栄養対話</span>
             </Eyebrow>
@@ -120,7 +120,7 @@ export function KonsultasiView() {
               <span className="h-1.5 w-1.5 rounded-full bg-sage" />
               Raifu Bot (Aktif · Respons Instan)
             </Pill>
-          </p>
+          </div>
           <h1 className="mt-3 font-serif text-3xl text-ink sm:text-4xl">
             Ruang Konsultasi Raifu Bot
           </h1>

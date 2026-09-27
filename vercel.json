@@ -1,0 +1,12 @@
+{
+  "crons": [
+    { "path": "/api/cron/reminders?type=sarapan", "schedule": "30 0 * * *" },
+    { "path": "/api/cron/reminders?type=siang", "schedule": "0 5 * * *" },
+    { "path": "/api/cron/reminders?type=malam", "schedule": "30 12 * * *" },
+    { "path": "/api/cron/reminders?type=streak", "schedule": "0 14 * * *" },
+    { "path": "/api/cron/reminders?type=hidrasi&slot=1", "schedule": "0 1 * * *" },
+    { "path": "/api/cron/reminders?type=hidrasi&slot=2", "schedule": "0 4 * * *" },
+    { "path": "/api/cron/reminders?type=hidrasi&slot=3", "schedule": "0 7 * * *" },
+    { "path": "/api/cron/reminders?type=hidrasi&slot=4", "schedule": "0 10 * * *" }
+  ]
+}

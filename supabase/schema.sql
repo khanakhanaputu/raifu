@@ -18,6 +18,7 @@ create table public.profiles (
   joined_label text not null default '',
   xp integer not null default 0,
   onboarded boolean not null default false,
+  newsletter_subscribed boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -85,7 +86,22 @@ alter table public.reminders enable row level security;
 create policy "reminders_all_own" on public.reminders
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
--- 6. auto-provision profile + reminder rows the instant a user signs up
+-- 6. push_subscriptions: one row per subscribed browser/device
+create table public.push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  created_at timestamptz not null default now()
+);
+
+create index push_subscriptions_user_idx on public.push_subscriptions (user_id);
+alter table public.push_subscriptions enable row level security;
+create policy "push_subscriptions_all_own" on public.push_subscriptions
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- 7. auto-provision profile + reminder rows the instant a user signs up
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql

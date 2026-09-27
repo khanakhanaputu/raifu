@@ -46,6 +46,7 @@ export type Profile = {
   goal: Goal;
   joinedLabel: string;
   xp: number;
+  newsletterSubscribed: boolean;
 };
 
 export type RaifuState = {

@@ -467,13 +467,13 @@ export function ScanView() {
       <section>
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <Eyebrow>Riwayat Sesi</Eyebrow>
-            <h2 className="mt-2 font-serif text-2xl text-ink">Pindai Terakhir Anda</h2>
+            <Eyebrow>Contoh Pindaian</Eyebrow>
+            <h2 className="mt-2 font-serif text-2xl text-ink">Coba Hidangan Sampel</h2>
           </div>
         </div>
 
         <ul className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-          {SAMPLE_SCANS.map((item, index) => (
+          {SAMPLE_SCANS.map((item) => (
             <li key={item.id}>
               <button
                 type="button"
@@ -492,7 +492,7 @@ export function ScanView() {
                     className="object-cover"
                   />
                   <span className="absolute top-3 right-3 rounded bg-white/90 px-2 py-1 text-xs text-ink">
-                    {["Tadi Siang, 12:45", "Kemarin Siang", "Kemarin Pagi", "2 Hari Lalu"][index]}
+                    Contoh
                   </span>
                 </span>
                 <span className="block p-4">

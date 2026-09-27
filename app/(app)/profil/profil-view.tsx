@@ -1,8 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import {
+  getPushSubscriptionState,
+  isPushSupported,
+  subscribeToPush,
+  unsubscribeFromPush,
+  type PushSubscriptionState,
+} from "@/lib/push-client";
 import { Card, Eyebrow, IconTile, Pill, ProgressBar, buttonClass, cx, fieldClass, FieldLabel } from "@/app/components/ui";
 import {
   BellIcon,
@@ -46,6 +53,48 @@ export function ProfilView() {
   const streak = streakInfo(state, today);
   const level = levelInfo(state.profile.xp);
   const savedTargets = targetsOf(state);
+
+  const [pushState, setPushState] = useState<PushSubscriptionState>("idle");
+  const [pushBusy, setPushBusy] = useState(false);
+
+  useEffect(() => {
+    getPushSubscriptionState().then(setPushState);
+  }, []);
+
+  const handleTogglePush = async () => {
+    if (!isPushSupported()) {
+      setPushState("unsupported");
+      return;
+    }
+
+    setPushBusy(true);
+    try {
+      if (pushState === "subscribed") {
+        const result = await unsubscribeFromPush();
+        setPushState(result.state);
+      } else {
+        const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+        if (!vapidKey) {
+          setPushState("error");
+          return;
+        }
+        const result = await subscribeToPush(vapidKey);
+        setPushState(result.state);
+      }
+    } catch {
+      setPushState("error");
+    } finally {
+      setPushBusy(false);
+    }
+  };
+
+  const pushCopy: Record<PushSubscriptionState, string> = {
+    idle: "Aktifkan Notifikasi Push",
+    unsupported: "Perangkat/browser ini tidak mendukung notifikasi push",
+    denied: "Izin notifikasi ditolak — aktifkan lewat pengaturan browser",
+    subscribed: "Notifikasi Aktif · Matikan",
+    error: "Gagal mengaktifkan — coba lagi",
+  };
 
   const formFromProfile = () => ({
     name: state.profile.name,
@@ -531,6 +580,20 @@ export function ProfilView() {
               </div>
               <p className="text-xs text-muted">Disampaikan Santun Tanpa Nada Keras</p>
             </div>
+
+            <button
+              type="button"
+              disabled={pushBusy || pushState === "unsupported"}
+              onClick={handleTogglePush}
+              className={cx(
+                "mt-5 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+                pushState === "subscribed"
+                  ? "bg-sage-soft text-sage"
+                  : "bg-sage text-white hover:bg-sage/90",
+              )}
+            >
+              {pushCopy[pushState]}
+            </button>
 
             <ul className="mt-6 space-y-3">
               {state.reminders.map((reminder) => (
