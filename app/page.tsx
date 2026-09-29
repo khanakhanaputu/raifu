@@ -21,6 +21,11 @@ const HERO_STATS = [
   { value: "10.000+", label: "Menu Terverifikasi" },
 ];
 
+// Penomoran kanji formal (壱弐参肆 = 1-4), sama seperti penanda level di
+// halaman Streak — dipakai sebagai tanda urutan fitur, ganti pola generik
+// "ikon dalam kotak di atas judul".
+const ORDINAL_KANJI = ["壱", "弐", "参", "肆"];
+
 const FEATURES = [
   {
     icon: ScanIcon,
@@ -97,7 +102,7 @@ export default function Home() {
     <>
       <SiteNav />
 
-      <main id="beranda" className="flex-1">
+      <main id="main-content" className="flex-1">
         <Hero />
         <Features />
         <Calculator />
@@ -257,14 +262,9 @@ function Features() {
     <section id="fitur" className="border-y border-line bg-mist">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-10 lg:py-20">
         <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr] lg:items-end">
-          <div>
-            <p className="text-xs font-medium tracking-[0.2em] text-muted uppercase">
-              Fitur Terintegrasi
-            </p>
-            <h2 className="mt-3 max-w-2xl font-serif text-3xl leading-snug text-ink sm:text-4xl">
-              Dirancang untuk Kesadaran Tubuh &amp; Ketenteraman Hati
-            </h2>
-          </div>
+          <h2 className="max-w-2xl font-serif text-3xl leading-snug text-ink sm:text-4xl">
+            Dirancang untuk Kesadaran Tubuh &amp; Ketenteraman Hati
+          </h2>
           <p className="max-w-sm text-sm leading-relaxed text-body lg:pb-2">
             Fokus pada esensi nutrisi tanpa obsesi angka yang berlebihan,
             didukung algoritma cerdas yang intuitif.
@@ -272,23 +272,27 @@ function Features() {
         </div>
 
         <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {FEATURES.map((feature) => {
+          {FEATURES.map((feature, index) => {
             const Icon = feature.icon;
             return (
               <li
                 key={feature.title}
                 className="flex flex-col rounded-xl border border-line bg-white p-6 transition-colors hover:border-sage/40"
               >
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-sage-soft text-sage">
-                  <Icon className="h-5 w-5" />
-                </span>
-                <h3 className="mt-5 font-serif text-lg text-ink">
-                  {feature.title}
-                </h3>
+                <div className="flex items-baseline gap-3">
+                  <span
+                    aria-hidden
+                    className="font-serif text-3xl leading-none text-sage/60 tabular-nums"
+                  >
+                    {ORDINAL_KANJI[index]}
+                  </span>
+                  <h3 className="font-serif text-lg text-ink">{feature.title}</h3>
+                </div>
                 <p className="mt-3 text-sm leading-relaxed text-body">
                   {feature.description}
                 </p>
-                <p className="mt-6 border-t border-line pt-4 text-xs tracking-[0.12em] text-muted uppercase">
+                <p className="mt-6 flex items-center gap-2 border-t border-line pt-4 text-xs tracking-[0.12em] text-muted uppercase">
+                  <Icon className="h-3.5 w-3.5 text-sage" />
                   {feature.note}
                 </p>
               </li>
@@ -307,10 +311,7 @@ function Calculator() {
         <div className="rounded-2xl bg-stone p-6 sm:p-10">
           <div className="grid gap-10 lg:grid-cols-[1fr_1.25fr] lg:gap-14">
             <div>
-              <p className="text-xs font-medium tracking-[0.2em] text-muted uppercase">
-                Estimasi Kebutuhan Personal
-              </p>
-              <h2 className="mt-3 font-serif text-3xl leading-snug text-ink">
+              <h2 className="font-serif text-3xl leading-snug text-ink">
                 Kalkulator Keseimbangan Nutrisi
               </h2>
               <p className="mt-4 text-sm leading-relaxed text-body">
@@ -346,7 +347,7 @@ function Philosophy() {
             sizes="(min-width: 1024px) 560px, 100vw"
             className="object-cover"
           />
-          <figcaption className="absolute right-4 bottom-4 left-4 rounded-lg bg-white/92 p-4 backdrop-blur-sm">
+          <figcaption className="absolute right-4 bottom-4 left-4 rounded-lg bg-white p-4">
             <p className="font-serif text-base text-ink">
               <span className="font-jp">腹八分目</span> · Hara Hachi Bu
             </p>
@@ -357,11 +358,8 @@ function Philosophy() {
         </figure>
 
         <div>
-          <p className="text-xs font-medium tracking-[0.2em] text-muted uppercase">
-            Filosofi Raifu
-          </p>
-          <h2 className="mt-3 font-serif text-3xl leading-snug text-ink sm:text-4xl">
-            Menjaga Hubungan Tenang Antara Manusia dan Makanan
+          <h2 className="font-serif text-3xl leading-snug text-ink sm:text-4xl">
+            Filosofi Raifu: Menjaga Hubungan Tenang Antara Manusia dan Makanan
           </h2>
           <p className="mt-5 text-base leading-relaxed text-body">
             Dalam budaya Jepang modern, makan bukan sekadar menghitung angka
@@ -395,10 +393,7 @@ function Testimonials() {
     <section id="testimoni" className="border-t border-line bg-mist">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-10 lg:py-20">
         <div className="text-center">
-          <p className="text-xs font-medium tracking-[0.2em] text-muted uppercase">
-            Pengalaman Pengguna
-          </p>
-          <h2 className="mt-3 font-serif text-3xl text-ink sm:text-4xl">
+          <h2 className="font-serif text-3xl text-ink sm:text-4xl">
             Cerita dari Mereka yang Menemukan Ketenangan
           </h2>
         </div>
@@ -448,11 +443,8 @@ function FinalCta() {
           className="grid gap-8 rounded-2xl bg-sage px-6 py-12 sm:px-12 lg:grid-cols-[1.4fr_1fr] lg:items-center"
         >
           <div>
-            <p className="text-xs font-medium tracking-[0.2em] text-white/70 uppercase">
-              Mulai Perjalanan Anda
-            </p>
-            <h2 className="mt-3 max-w-xl font-serif text-3xl leading-snug text-white sm:text-4xl">
-              Bawa Ketenangan ke Dalam Setiap Sajian Harian
+            <h2 className="max-w-xl font-serif text-3xl leading-snug text-white sm:text-4xl">
+              Mulai Perjalanan Anda: Bawa Ketenangan ke Dalam Setiap Sajian Harian
             </h2>
             <p className="mt-4 max-w-lg text-sm leading-relaxed text-white/80">
               Daftar sekarang secara cuma-cuma dan rasakan kemudahan mencatat

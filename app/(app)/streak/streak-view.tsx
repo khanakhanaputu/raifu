@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Card, Eyebrow, IconTile, Pill, ProgressBar, buttonClass, cx } from "@/app/components/ui";
+import { Card, IconTile, Pill, ProgressBar, buttonClass, cx } from "@/app/components/ui";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -70,14 +70,13 @@ export function StreakView() {
     <div className="mx-auto max-w-[1400px] space-y-6 px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <Eyebrow className="flex flex-wrap items-center gap-2">
-            <span className="font-jp text-ink">継続の美学</span>
-            <span>· Keizoku No Bigaku ·</span>
-            <span>Ritual Konsistensi</span>
-          </Eyebrow>
-          <h1 className="mt-3 font-serif text-3xl text-ink sm:text-4xl">
+          <h1 className="font-serif text-3xl text-ink sm:text-4xl">
             Streak History &amp; Pencapaian
           </h1>
+          <p className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted">
+            <span className="font-jp text-ink">継続の美学</span>
+            <span>· Keizoku No Bigaku · Ritual Konsistensi</span>
+          </p>
         </div>
         <p className="max-w-sm text-sm leading-relaxed text-body lg:text-right">
           Menghargai ketenangan dalam setiap suapan, mencatat setiap nutrisi secara
@@ -164,9 +163,8 @@ export function StreakView() {
         <Card className="p-6">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <Eyebrow>Kalender Presisi</Eyebrow>
-              <h2 className="mt-2 flex items-center gap-3 font-serif text-2xl text-ink">
-                {monthLabel(anchor)}
+              <h2 className="flex flex-wrap items-center gap-3 font-serif text-2xl text-ink">
+                Kalender Presisi: {monthLabel(anchor)}
                 <span className="font-jp text-sm text-muted">(神無月)</span>
               </h2>
             </div>
@@ -273,9 +271,8 @@ export function StreakView() {
           <Card className="p-6">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <Eyebrow>Metrik Perilaku</Eyebrow>
-                <h2 className="mt-2 font-serif text-xl text-ink">
-                  Statistik Konsistensi
+                <h2 className="font-serif text-xl text-ink">
+                  Metrik Perilaku: Statistik Konsistensi
                 </h2>
               </div>
             </div>

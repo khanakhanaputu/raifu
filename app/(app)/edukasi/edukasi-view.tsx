@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Card, Eyebrow, FilterChip, IconTile, Pill, buttonClass, cx, fieldClass } from "@/app/components/ui";
+import { Card, FilterChip, IconTile, Pill, buttonClass, cx, fieldClass } from "@/app/components/ui";
 import {
   BookmarkIcon,
   JournalIcon,
@@ -35,13 +35,13 @@ export function EdukasiView() {
     <div className="mx-auto max-w-[1400px] space-y-8 px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-2xl">
-          <Eyebrow className="flex flex-wrap items-center gap-2">
-            Ruang Baca &amp; Ilmu Gizi ·
-            <span className="font-jp text-ink">学びと養生</span>
-          </Eyebrow>
-          <h1 className="mt-3 font-serif text-3xl text-ink sm:text-4xl">
+          <h1 className="font-serif text-3xl text-ink sm:text-4xl">
             Edukasi &amp; Jurnal Keseimbangan Hidup
           </h1>
+          <p className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted">
+            Ruang Baca &amp; Ilmu Gizi ·
+            <span className="font-jp text-ink">学びと養生</span>
+          </p>
           <p className="mt-3 text-sm leading-relaxed text-body">
             Artikel mendalam seputar ilmu gizi modern, filosofi umur panjang Jepang, dan
             strategi membangun relasi damai dengan makanan sehari-hari.
@@ -234,9 +234,8 @@ export function EdukasiView() {
         <span className="mx-auto grid h-11 w-11 place-items-center rounded-full bg-white text-sage">
           <MailIcon className="h-5 w-5" />
         </span>
-        <Eyebrow className="mt-4">Wawasan Bebas Distraksi</Eyebrow>
-        <h2 className="mt-3 font-serif text-2xl text-ink sm:text-3xl">
-          Jurnal Mingguan Raifu
+        <h2 className="mt-4 font-serif text-2xl text-ink sm:text-3xl">
+          Wawasan Bebas Distraksi: Jurnal Mingguan Raifu
         </h2>
         <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-ink/70">
           Setiap Minggu pagi, dapatkan ringkasan riset nutrisi terapan, resep musiman

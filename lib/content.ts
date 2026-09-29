@@ -1,20 +1,35 @@
 import type { MealType } from "./store-types";
 
+/**
+ * Aset foto pihak ketiga — seluruhnya dari Unsplash (unsplash.com), dipakai
+ * di bawah Unsplash License (unsplash.com/license): bebas dipakai komersial
+ * & non-komersial tanpa izin tertulis, atribusi tidak diwajibkan lisensi
+ * tetapi URL sumber asli tiap foto dicantumkan di bawah untuk transparansi
+ * sesuai ketentuan lomba (poin C.1.k Web Design INVENTION 2026).
+ */
 export const PHOTOS = {
+  // https://images.unsplash.com/photo-1498654896293-37aacf113fd9
   teishoku:
     "https://images.unsplash.com/photo-1498654896293-37aacf113fd9?auto=format&fit=crop&w=1100&q=70",
+  // https://images.unsplash.com/photo-1579584425555-c3ce17fd4351
   salmonBoard:
     "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?auto=format&fit=crop&w=1100&q=70",
+  // https://images.unsplash.com/photo-1569718212165-3a8278d5f624
   ramen:
     "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=1100&q=70",
+  // https://images.unsplash.com/photo-1553621042-f6e147245754
   sushiBoat:
     "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=1100&q=70",
+  // https://images.unsplash.com/photo-1607301405390-d831c242f59b
   sushiDark:
     "https://images.unsplash.com/photo-1607301405390-d831c242f59b?auto=format&fit=crop&w=1100&q=70",
+  // https://images.unsplash.com/photo-1546069901-ba9599a7e63c
   bowl:
     "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1100&q=70",
+  // https://images.unsplash.com/photo-1484723091739-30a097e8f929
   breakfast:
     "https://images.unsplash.com/photo-1484723091739-30a097e8f929?auto=format&fit=crop&w=1100&q=70",
+  // https://images.unsplash.com/photo-1528164344705-47542687000d
   fuji:
     "https://images.unsplash.com/photo-1528164344705-47542687000d?auto=format&fit=crop&w=1100&q=70",
 } as const;

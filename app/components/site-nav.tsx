@@ -37,9 +37,9 @@ export function SiteNav() {
         aria-label="Navigasi utama"
         className="mx-auto flex h-16 max-w-7xl items-center gap-8 px-4 sm:px-6 lg:px-10"
       >
-        <a href="#beranda" className="shrink-0" aria-label="Raifu, ke beranda">
+        <Link href="/" className="shrink-0" aria-label="Raifu, ke beranda">
           <Logo showKatakanaWordmark />
-        </a>
+        </Link>
 
         <ul className="hidden flex-1 items-center gap-7 lg:flex">
           {LINKS.map((link) => (

@@ -57,7 +57,7 @@ export function KonsultasiView() {
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
   const threadRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestIdRef = useRef(0);
 
   useEffect(() => {
     threadRef.current?.scrollTo({
@@ -68,29 +68,74 @@ export function KonsultasiView() {
 
   useEffect(
     () => () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+      requestIdRef.current += 1; // batalkan respons yang masih menunggu saat unmount
     },
     [],
   );
 
-  const send = (text: string) => {
+  const send = async (text: string, historySource: Message[]) => {
     const question = text.trim();
     if (!question || thinking) return;
 
+    const id = ++requestIdRef.current;
     const time = clockNow();
     setMessages((prev) => [
       ...prev,
-      { id: `user-${Date.now()}`, role: "user", time, text: question },
+      { id: `user-${id}`, role: "user", time, text: question },
     ]);
     setInput("");
     setThinking(true);
 
-    timerRef.current = setTimeout(() => {
+    const history = historySource.slice(-8).map((message) => ({
+      role: message.role === "bot" ? ("assistant" as const) : ("user" as const),
+      content: message.text,
+    }));
+
+    try {
+      const res = await fetch("/api/consult", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          message: question,
+          history,
+          profile: {
+            name: firstName,
+            targetKcal: targets.kcal,
+            weightKg: state.profile.weightKg,
+            goal: state.profile.goal,
+          },
+        }),
+      });
+      const payload = await res.json().catch(() => null);
+      if (requestIdRef.current !== id) return; // sudah di-reset / pesan baru dikirim
+
+      if (res.ok && payload?.answer) {
+        setMessages((prev) => [
+          ...prev,
+          { id: `bot-${id}`, role: "bot", time: clockNow(), text: payload.answer },
+        ]);
+      } else {
+        // AI gagal (kuota/koneksi) — jatuh ke asisten template lokal sebagai cadangan.
+        const match = findBotReply(question);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `bot-${id}`,
+            role: "bot",
+            time: clockNow(),
+            text: match?.answer ?? payload?.error ?? FALLBACK_REPLY,
+            steps: match?.steps,
+            chips: match?.chips,
+          },
+        ]);
+      }
+    } catch {
+      if (requestIdRef.current !== id) return;
       const match = findBotReply(question);
       setMessages((prev) => [
         ...prev,
         {
-          id: `bot-${Date.now()}`,
+          id: `bot-${id}`,
           role: "bot",
           time: clockNow(),
           text: match?.answer ?? FALLBACK_REPLY,
@@ -98,12 +143,13 @@ export function KonsultasiView() {
           chips: match?.chips,
         },
       ]);
-      setThinking(false);
-    }, 900);
+    } finally {
+      if (requestIdRef.current === id) setThinking(false);
+    }
   };
 
   const reset = () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
+    requestIdRef.current += 1;
     setThinking(false);
     setMessages([greeting]);
   };
@@ -112,18 +158,18 @@ export function KonsultasiView() {
     <div className="mx-auto max-w-[1400px] space-y-6 px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-2xl">
-          <div className="flex flex-wrap items-center gap-3">
-            <Eyebrow>
-              Asisten Gizi Sadar · <span className="font-jp">栄養対話</span>
-            </Eyebrow>
-            <Pill>
-              <span className="h-1.5 w-1.5 rounded-full bg-sage" />
-              Raifu Bot (Aktif · Respons Instan)
-            </Pill>
-          </div>
-          <h1 className="mt-3 font-serif text-3xl text-ink sm:text-4xl">
+          <h1 className="font-serif text-3xl text-ink sm:text-4xl">
             Ruang Konsultasi Raifu Bot
           </h1>
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <p className="text-sm text-muted">
+              Asisten Gizi Sadar · <span className="font-jp">栄養対話</span>
+            </p>
+            <Pill>
+              <span className="h-1.5 w-1.5 rounded-full bg-sage" />
+              Raifu Bot (Aktif · AI)
+            </Pill>
+          </div>
           <p className="mt-3 text-sm leading-relaxed text-body">
             Tanyakan panduan nutrisi harian, ide resep rendah glikemik, atau konsultasi{" "}
             <em>mindful eating</em> berbasis kearifan gizi sains dan filosofi Jepang.
@@ -162,7 +208,7 @@ export function KonsultasiView() {
           <button
             key={prompt}
             type="button"
-            onClick={() => send(prompt)}
+            onClick={() => send(prompt, messages)}
             className="rounded-full border border-line bg-white px-3.5 py-1.5 text-xs text-body transition-colors hover:border-sage hover:text-sage"
           >
             {prompt}
@@ -287,7 +333,7 @@ export function KonsultasiView() {
           <form
             onSubmit={(event) => {
               event.preventDefault();
-              send(input);
+              send(input, messages);
             }}
             className="border-t border-line p-4"
           >
@@ -312,7 +358,7 @@ export function KonsultasiView() {
               </button>
             </div>
             <p className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
-              <span>Jawaban berbasis template edukasi · bukan pengganti konsultasi klinis</span>
+              <span>Jawaban dihasilkan AI · bukan pengganti konsultasi klinis</span>
               <span>Dukungan Bahasa Indonesia &amp; Nihongo</span>
             </p>
           </form>
@@ -398,7 +444,7 @@ export function KonsultasiView() {
                 <li key={topic.title} className="py-3 first:pt-0 last:pb-0">
                   <button
                     type="button"
-                    onClick={() => send(topic.title)}
+                    onClick={() => send(topic.title, messages)}
                     className="text-left transition-colors hover:text-sage"
                   >
                     <span className="block font-serif text-base leading-snug text-ink">

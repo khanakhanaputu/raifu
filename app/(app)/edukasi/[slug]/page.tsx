@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Eyebrow, Pill, buttonClass } from "@/app/components/ui";
+import { Pill, buttonClass } from "@/app/components/ui";
 import { ARTICLES } from "@/lib/content";
 
 export function generateStaticParams() {
@@ -33,10 +33,10 @@ export default async function ArticlePage({ params }: PageProps<"/edukasi/[slug]
       </Link>
 
       <article className="mt-6">
-        <Eyebrow>{article.category}</Eyebrow>
-        <h1 className="mt-3 font-serif text-3xl leading-tight text-ink sm:text-4xl">
+        <h1 className="font-serif text-3xl leading-tight text-ink sm:text-4xl">
           {article.title}
         </h1>
+        <p className="mt-2 text-sm text-muted">{article.category}</p>
 
         <p className="mt-5 flex flex-wrap items-center gap-3 text-sm text-body">
           <span className="grid h-8 w-8 place-items-center rounded-full bg-sage-soft text-xs font-medium text-sage">

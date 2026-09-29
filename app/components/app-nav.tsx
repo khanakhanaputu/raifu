@@ -4,20 +4,32 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Logo } from "./logo";
-import { LeafIcon } from "./icons";
+import {
+  BellIcon,
+  BookIcon,
+  BowlIcon,
+  ChatIcon,
+  FlameIcon,
+  GridIcon,
+  JournalIcon,
+  LeafIcon,
+  ScanIcon,
+} from "./icons";
 import { useRaifu } from "@/lib/store";
 import { streakInfo } from "@/lib/selectors";
 import { cx } from "./ui";
 
+// Tab bar produk — sengaja beda dari nav marketing (SiteNav): ikon+label
+// dalam pil aktif, bukan garis-bawah ala tautan halaman. Tanpa "Beranda":
+// begitu masuk, tidak ada alasan untuk kembali ke halaman pemasaran.
 const NAV_ITEMS = [
-  { href: "/", label: "Beranda" },
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/scan", label: "Scan Nutrisi" },
-  { href: "/food-log", label: "Food Log" },
-  { href: "/streak", label: "Streak & Badges" },
-  { href: "/menu-sehat", label: "Menu Sehat" },
-  { href: "/konsultasi", label: "Konsultasi Bot" },
-  { href: "/edukasi", label: "Edukasi" },
+  { href: "/dashboard", label: "Dashboard", icon: GridIcon },
+  { href: "/scan", label: "Scan Nutrisi", icon: ScanIcon },
+  { href: "/food-log", label: "Food Log", icon: JournalIcon },
+  { href: "/streak", label: "Streak & Badges", icon: FlameIcon },
+  { href: "/menu-sehat", label: "Menu Sehat", icon: BowlIcon },
+  { href: "/konsultasi", label: "Konsultasi Bot", icon: ChatIcon },
+  { href: "/edukasi", label: "Edukasi", icon: BookIcon },
 ] as const;
 
 export function AppNav() {
@@ -26,36 +38,40 @@ export function AppNav() {
   const [open, setOpen] = useState(false);
   const streak = streakInfo(state, today);
 
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const isActive = (href: string) => pathname.startsWith(href);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-line bg-mist/90 backdrop-blur">
       <nav
-        aria-label="Navigasi aplikasi"
-        className="mx-auto flex h-16 max-w-[1400px] items-center gap-6 px-4 sm:px-6 lg:px-8"
+        aria-label="Navigasi produk"
+        className="mx-auto flex h-16 max-w-[1400px] items-center gap-4 px-4 sm:px-6 lg:px-8"
       >
-        <Link href="/" className="shrink-0" aria-label="Raifu, ke beranda">
+        <Link href="/dashboard" className="shrink-0" aria-label="Raifu, ke Dashboard">
           <Logo showKatakanaWordmark />
         </Link>
 
         <ul className="hidden flex-1 items-center gap-1 xl:flex">
-          {NAV_ITEMS.map((item) => (
-            <li key={item.href}>
-              <Link
-                href={item.href}
-                aria-current={isActive(item.href) ? "page" : undefined}
-                className={cx(
-                  "inline-flex h-16 items-center border-b-2 px-3 text-sm transition-colors",
-                  isActive(item.href)
-                    ? "border-sage font-medium text-sage"
-                    : "border-transparent text-body hover:text-sage",
-                )}
-              >
-                {item.label}
-              </Link>
-            </li>
-          ))}
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.href);
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className={cx(
+                    "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
+                    active
+                      ? "bg-sage text-white"
+                      : "text-body hover:bg-white hover:text-sage",
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
 
         <div className="ml-auto flex items-center gap-2 xl:ml-0">
@@ -69,13 +85,10 @@ export function AppNav() {
 
           <button
             type="button"
-            className="hidden h-11 w-11 items-center justify-center rounded-md text-body transition-colors hover:text-sage sm:inline-flex"
+            className="hidden h-11 w-11 items-center justify-center rounded-md text-body transition-colors hover:bg-white hover:text-sage sm:inline-flex"
             aria-label="Notifikasi"
           >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M18 8.5a6 6 0 10-12 0c0 5-2 6.5-2 6.5h16s-2-1.5-2-6.5z" strokeLinejoin="round" />
-              <path d="M10.3 19a2 2 0 003.4 0" strokeLinecap="round" />
-            </svg>
+            <BellIcon className="h-5 w-5" />
           </button>
 
           <Link
@@ -114,20 +127,25 @@ export function AppNav() {
       {open && (
         <div id="app-menu-mobile" className="border-t border-line bg-white xl:hidden">
           <ul className="mx-auto max-w-[1400px] px-4 py-2 sm:px-6">
-            {NAV_ITEMS.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  onClick={() => setOpen(false)}
-                  className={cx(
-                    "block border-b border-line/70 py-3 text-sm last:border-0",
-                    isActive(item.href) ? "font-medium text-sage" : "text-body",
-                  )}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
+            {NAV_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.href);
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className={cx(
+                      "flex items-center gap-3 border-b border-line/70 py-3 text-sm last:border-0",
+                      active ? "font-medium text-sage" : "text-body",
+                    )}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

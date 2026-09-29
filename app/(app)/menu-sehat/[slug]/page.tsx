@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Card, Eyebrow, Pill, buttonClass } from "@/app/components/ui";
+import { Card, Pill, buttonClass } from "@/app/components/ui";
 import { BowlIcon, ClockIcon, LeafIcon } from "@/app/components/icons";
 import { RECIPES } from "@/lib/content";
 import { formatNumber } from "@/lib/nutrition";
@@ -41,10 +41,12 @@ export default async function RecipePage({ params }: PageProps<"/menu-sehat/[slu
       </Link>
 
       <article className="mt-6">
-        <Eyebrow>{recipe.mealLabel} · Panduan Memasak</Eyebrow>
-        <h1 className="mt-3 font-serif text-3xl leading-tight text-ink sm:text-4xl">
+        <h1 className="font-serif text-3xl leading-tight text-ink sm:text-4xl">
           {recipe.name}
         </h1>
+        <p className="mt-2 text-sm text-muted">
+          {recipe.mealLabel} · Panduan Memasak
+        </p>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-body">
           {recipe.summary}
         </p>

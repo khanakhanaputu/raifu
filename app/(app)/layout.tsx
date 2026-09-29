@@ -6,7 +6,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <AppNav />
-      <main className="flex-1 bg-cream">
+      <main id="main-content" className="flex-1 bg-cream">
         <AppDataGate>{children}</AppDataGate>
       </main>
       <AppFooter />

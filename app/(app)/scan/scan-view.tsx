@@ -21,12 +21,14 @@ import {
 import { useRaifu } from "@/lib/store";
 import { targetsOf } from "@/lib/selectors";
 import { formatNumber, percentOf } from "@/lib/nutrition";
+import { compressDataUrl } from "@/lib/image";
 import { SAMPLE_SCANS, type SampleScan } from "@/lib/content";
 import type { MealType } from "@/lib/store-types";
 import { CameraCapture } from "./camera-capture";
 
 type Mode = "sampel" | "unggah" | "kamera";
-type Status = "idle" | "analyzing" | "done";
+type Status = "idle" | "analyzing" | "done" | "error";
+type ResultSource = "sample" | "ai";
 
 const PORTIONS = [
   { value: 0.5, label: "0.5x Ringan" },
@@ -42,47 +44,106 @@ function mealTypeForHour(hour: number): MealType {
   return "malam";
 }
 
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error("Gagal membaca berkas."));
+    reader.readAsDataURL(file);
+  });
+}
+
 export function ScanView() {
   const { state, today, addEntry } = useRaifu();
   const targets = targetsOf(state);
 
   const [mode, setMode] = useState<Mode>("sampel");
   const [status, setStatus] = useState<Status>("done");
+  const [source, setSource] = useState<ResultSource>("sample");
   const [sample, setSample] = useState<SampleScan>(SAMPLE_SCANS[0]);
   const [customImage, setCustomImage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [portion, setPortion] = useState(1);
   const [saved, setSaved] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestIdRef = useRef(0);
 
   useEffect(
     () => () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+      // Membatalkan hasil analisis yang masih berjalan saat komponen dilepas.
+      requestIdRef.current += 1;
     },
     [],
   );
 
-  const runAnalysis = (next: SampleScan, image: string | null) => {
-    if (timerRef.current) clearTimeout(timerRef.current);
+  const pickSample = (item: SampleScan) => {
+    requestIdRef.current += 1;
     setSaved(null);
+    setErrorMessage(null);
     setPortion(1);
-    setSample(next);
-    setCustomImage(image);
+    setSource("sample");
+    setSample(item);
+    setCustomImage(null);
     setStatus("analyzing");
-    timerRef.current = setTimeout(() => setStatus("done"), 1400);
+    const id = requestIdRef.current;
+    window.setTimeout(() => {
+      if (requestIdRef.current === id) setStatus("done");
+    }, 900);
   };
 
-  const handleFile = (file: File | undefined) => {
+  const analyzeWithAI = async (rawDataUrl: string) => {
+    requestIdRef.current += 1;
+    const id = requestIdRef.current;
+
+    setSaved(null);
+    setErrorMessage(null);
+    setPortion(1);
+    setSource("ai");
+    setCustomImage(rawDataUrl);
+    setStatus("analyzing");
+
+    try {
+      const compact = await compressDataUrl(rawDataUrl);
+      const res = await fetch("/api/scan", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ image: compact }),
+      });
+      const payload = await res.json().catch(() => null);
+      if (requestIdRef.current !== id) return; // dibatalkan oleh aksi baru
+
+      if (!res.ok || !payload) {
+        setErrorMessage(payload?.error ?? "Gagal menganalisis foto. Coba lagi.");
+        setStatus("error");
+        return;
+      }
+
+      setSample({ id: `ai-${crypto.randomUUID()}`, image: rawDataUrl, ...payload });
+      setStatus("done");
+    } catch {
+      if (requestIdRef.current !== id) return;
+      setErrorMessage("Tidak dapat menghubungi layanan AI. Periksa koneksi Anda.");
+      setStatus("error");
+    }
+  };
+
+  const handleFile = async (file: File | undefined) => {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const guess =
-        SAMPLE_SCANS.find((item) =>
-          file.name.toLowerCase().includes(item.id.split("-")[0]),
-        ) ?? SAMPLE_SCANS[Math.floor(Math.random() * SAMPLE_SCANS.length)];
-      runAnalysis(guess, String(reader.result));
-    };
-    reader.readAsDataURL(file);
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      await analyzeWithAI(dataUrl);
+    } catch {
+      setErrorMessage("Gagal membaca berkas foto. Coba pilih foto lain.");
+      setStatus("error");
+    }
+  };
+
+  const retry = () => {
+    if (source === "ai" && customImage) {
+      analyzeWithAI(customImage);
+    } else {
+      pickSample(sample);
+    }
   };
 
   const scaled = {
@@ -96,6 +157,7 @@ export function ScanView() {
 
   const image = customImage ?? sample.image;
   const isRemote = image.startsWith("http");
+  const hasResult = status === "done";
 
   const handleSave = () => {
     const now = new Date();
@@ -109,7 +171,7 @@ export function ScanView() {
       carbs: scaled.carbs,
       fat: scaled.fat,
       fiber: scaled.fiber,
-      tags: ["Scan AI"],
+      tags: [source === "ai" ? "Scan AI" : "Contoh Scan"],
       source: "scan",
       image: isRemote ? image : undefined,
     });
@@ -120,17 +182,18 @@ export function ScanView() {
     <div className="mx-auto max-w-[1400px] space-y-6 px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-2xl">
-          <Eyebrow className="flex items-center gap-2 text-sage">
+          <h1 className="font-serif text-3xl text-ink sm:text-4xl">
+            Analisis Visual Nutrisi
+          </h1>
+          <p className="mt-2 flex items-center gap-2 text-sm text-sage">
             AI Nutrition Scanner
             <span className="h-1 w-1 rounded-full bg-sage" />
             <span className="font-jp">スキャナー</span>
-          </Eyebrow>
-          <h1 className="mt-3 font-serif text-3xl text-ink sm:text-4xl">
-            Analisis Visual Nutrisi
-          </h1>
+          </p>
           <p className="mt-3 text-sm leading-relaxed text-body">
             Unggah atau ambil foto makanan Anda untuk estimasi instan komposisi makro,
-            serat alami, dan rekomendasi mindful Japanese nutrition.
+            serat alami, dan rekomendasi mindful Japanese nutrition — dianalisis
+            langsung oleh model vision AI.
           </p>
         </div>
 
@@ -172,7 +235,7 @@ export function ScanView() {
             <button
               key={item.id}
               type="button"
-              onClick={() => runAnalysis(item, null)}
+              onClick={() => pickSample(item)}
               className={cx(
                 "rounded-full px-4 py-1.5 text-sm transition-colors",
                 sample.id === item.id && !customImage
@@ -188,17 +251,9 @@ export function ScanView() {
 
       <div className="grid gap-6 xl:grid-cols-[1.15fr_1fr]">
         <div className="space-y-5">
-          {mode === "kamera" ? (
+          {mode === "kamera" && !customImage ? (
             <Card className="p-5">
-              <CameraCapture
-                onCapture={(dataUrl) => {
-                  runAnalysis(
-                    SAMPLE_SCANS[Math.floor(Math.random() * SAMPLE_SCANS.length)],
-                    dataUrl,
-                  );
-                  setMode("sampel");
-                }}
-              />
+              <CameraCapture onCapture={(dataUrl) => analyzeWithAI(dataUrl)} />
             </Card>
           ) : mode === "unggah" && !customImage ? (
             <Card className="p-5">
@@ -218,8 +273,8 @@ export function ScanView() {
                     Letakkan foto makanan Anda di sini
                   </p>
                   <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-body">
-                    Format JPG atau PNG. Foto diproses langsung di perangkat Anda dan
-                    tidak diunggah ke mana pun.
+                    Format JPG, PNG, atau WebP. Foto dikirim ke model vision AI untuk
+                    dianalisis, lalu tidak disimpan di server kami.
                   </p>
                   <button
                     type="button"
@@ -261,28 +316,44 @@ export function ScanView() {
                   />
                 )}
 
-                {status === "analyzing" ? (
+                {status === "analyzing" && (
                   <div className="absolute inset-0 grid place-items-center bg-ink/45 backdrop-blur-[2px]">
                     <div className="text-center text-white">
                       <span className="mx-auto block h-10 w-10 animate-spin rounded-full border-2 border-white/40 border-t-white" />
                       <p className="mt-4 text-sm">
-                        {customImage
-                          ? "Mencari hidangan serupa…"
-                          : "Menyiapkan estimasi nutrisi…"}
+                        {source === "ai"
+                          ? "Menganalisis foto dengan AI…"
+                          : "Menyiapkan contoh…"}
                       </p>
                     </div>
                   </div>
-                ) : (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => runAnalysis(sample, customImage)}
-                      aria-label="Pindai ulang"
-                      className="absolute right-4 bottom-4 grid h-11 w-11 place-items-center rounded-full bg-white/90 text-ink transition-colors hover:text-sage"
-                    >
-                      <RefreshIcon className="h-4 w-4" />
-                    </button>
-                  </>
+                )}
+
+                {status === "error" && (
+                  <div className="absolute inset-0 grid place-items-center bg-ink/55 p-6 text-center">
+                    <div>
+                      <p className="text-sm text-white">{errorMessage}</p>
+                      <button
+                        type="button"
+                        onClick={retry}
+                        className={buttonClass("secondary", "mt-4")}
+                      >
+                        <RefreshIcon className="h-4 w-4" />
+                        Coba Lagi
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {status === "done" && (
+                  <button
+                    type="button"
+                    onClick={retry}
+                    aria-label="Pindai ulang"
+                    className="absolute right-4 bottom-4 grid h-11 w-11 place-items-center rounded-full bg-white/90 text-ink transition-colors hover:text-sage"
+                  >
+                    <RefreshIcon className="h-4 w-4" />
+                  </button>
                 )}
               </div>
             </Card>
@@ -295,10 +366,12 @@ export function ScanView() {
               </IconTile>
               <span>
                 <span className="block text-sm font-medium text-ink">
-                  Estimasi Nutrisi
+                  {source === "ai" ? "Analisis AI Langsung" : "Estimasi Nutrisi"}
                 </span>
                 <span className="block text-xs text-body">
-                  Berdasarkan data hidangan serupa yang telah dikurasi
+                  {source === "ai"
+                    ? "Dianalisis langsung dari foto Anda oleh model vision AI"
+                    : "Berdasarkan data hidangan serupa yang telah dikurasi"}
                 </span>
               </span>
             </p>
@@ -313,7 +386,7 @@ export function ScanView() {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="flex flex-wrap items-center gap-3">
-                <Pill>Estimasi dari Hidangan Serupa</Pill>
+                <Pill>{source === "ai" ? "Dianalisis AI" : "Estimasi dari Hidangan Serupa"}</Pill>
               </p>
               <h2 className="mt-3 font-serif text-2xl text-ink">{sample.name}</h2>
               <p className="mt-1 max-w-sm text-sm text-body">{sample.detail}</p>
@@ -384,17 +457,16 @@ export function ScanView() {
 
             <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
-                { label: "Protein", value: scaled.protein, note: "Tinggi" },
-                { label: "Karbo", value: scaled.carbs, note: "Kompleks" },
-                { label: "Lemak", value: scaled.fat, note: "Omega-3" },
-                { label: "Serat", value: scaled.fiber, note: "Bagus" },
+                { label: "Protein", value: scaled.protein },
+                { label: "Karbo", value: scaled.carbs },
+                { label: "Lemak", value: scaled.fat },
+                { label: "Serat", value: scaled.fiber },
               ].map((macro) => (
                 <li key={macro.label} className="rounded-lg bg-mist p-3 text-center">
                   <p className="text-xs text-muted">{macro.label}</p>
                   <p className="mt-1 font-serif text-xl text-ink tabular-nums">
                     {macro.value}g
                   </p>
-                  <p className="text-xs text-sage">{macro.note}</p>
                 </li>
               ))}
             </ul>
@@ -428,7 +500,7 @@ export function ScanView() {
             <button
               type="button"
               onClick={handleSave}
-              disabled={status !== "done"}
+              disabled={!hasResult}
               className={buttonClass("primary", "w-full")}
             >
               <CheckCircleIcon className="h-4 w-4" />
@@ -437,7 +509,8 @@ export function ScanView() {
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => runAnalysis(sample, customImage)}
+                onClick={retry}
+                disabled={status === "analyzing"}
                 className={buttonClass("ghost")}
               >
                 <RefreshIcon className="h-4 w-4" />
@@ -467,8 +540,9 @@ export function ScanView() {
       <section>
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <Eyebrow>Contoh Pindaian</Eyebrow>
-            <h2 className="mt-2 font-serif text-2xl text-ink">Coba Hidangan Sampel</h2>
+            <h2 className="font-serif text-2xl text-ink">
+              Contoh Pindaian: Coba Hidangan Sampel
+            </h2>
           </div>
         </div>
 
@@ -479,7 +553,7 @@ export function ScanView() {
                 type="button"
                 onClick={() => {
                   setMode("sampel");
-                  runAnalysis(item, null);
+                  pickSample(item);
                 }}
                 className="w-full overflow-hidden rounded-xl border border-line bg-white text-left transition-colors hover:border-sage/50"
               >

@@ -324,3 +324,32 @@ export function TorchIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function GridIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1.5" />
+      <rect x="13" y="3.5" width="7.5" height="7.5" rx="1.5" />
+      <rect x="3.5" y="13" width="7.5" height="7.5" rx="1.5" />
+      <rect x="13" y="13" width="7.5" height="7.5" rx="1.5" />
+    </svg>
+  );
+}
+
+export function BookIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M12 6.5c-1.6-1.2-3.8-1.7-6.5-1.5v13c2.7-.2 4.9.3 6.5 1.5 1.6-1.2 3.8-1.7 6.5-1.5v-13c-2.7-.2-4.9.3-6.5 1.5z" />
+      <path d="M12 6.5v13" />
+    </svg>
+  );
+}
+
+export function DownloadIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M12 4v11M8 11.5l4 4 4-4" />
+      <path d="M4.5 16v3a1.5 1.5 0 001.5 1.5h12a1.5 1.5 0 001.5-1.5v-3" />
+    </svg>
+  );
+}

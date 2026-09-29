@@ -50,7 +50,7 @@ export function Logo({ size = "md", tone = "dark", showKatakanaWordmark = false 
       {showKatakanaWordmark && (
         <span
           aria-hidden
-          className={`font-jp text-xs tracking-[0.2em] ${isLight ? "text-white/70" : "text-muted"}`}
+          className={`hidden font-jp text-xs tracking-[0.2em] sm:inline ${isLight ? "text-white/70" : "text-muted"}`}
         >
           ライフ
         </span>

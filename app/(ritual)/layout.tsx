@@ -14,7 +14,7 @@ export default function RitualLayout({ children }: { children: React.ReactNode }
           </p>
         </div>
       </header>
-      <main className="flex-1 bg-cream">{children}</main>
+      <main id="main-content" className="flex-1 bg-cream">{children}</main>
     </>
   );
 }

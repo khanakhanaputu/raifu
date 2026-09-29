@@ -14,6 +14,7 @@ import { Card, Eyebrow, IconTile, Pill, ProgressBar, buttonClass, cx, fieldClass
 import {
   BellIcon,
   DeviceIcon,
+  DownloadIcon,
   DropletIcon,
   LeafIcon,
   LogoutIcon,
@@ -25,6 +26,7 @@ import {
   CheckCircleIcon,
 } from "@/app/components/icons";
 import { useRaifu } from "@/lib/store";
+import { mealMeta } from "@/lib/store-types";
 import { levelInfo, streakInfo, targetsOf } from "@/lib/selectors";
 import {
   ACTIVITY_OPTIONS,
@@ -53,6 +55,52 @@ export function ProfilView() {
   const streak = streakInfo(state, today);
   const level = levelInfo(state.profile.xp);
   const savedTargets = targetsOf(state);
+
+  const exportCsv = () => {
+    const header = [
+      "Tanggal",
+      "Jam",
+      "Jenis Makan",
+      "Nama Makanan",
+      "Kalori (kkal)",
+      "Protein (g)",
+      "Karbohidrat (g)",
+      "Lemak (g)",
+      "Serat (g)",
+      "Sumber",
+    ];
+    const escapeCsv = (value: string) =>
+      /[",\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+
+    const rows = [...state.entries]
+      .sort((a, b) => (a.date === b.date ? a.time.localeCompare(b.time) : a.date.localeCompare(b.date)))
+      .map((entry) =>
+        [
+          entry.date,
+          entry.time,
+          mealMeta(entry.mealType).label,
+          entry.name,
+          String(entry.kcal),
+          String(entry.protein),
+          String(entry.carbs),
+          String(entry.fat),
+          String(entry.fiber),
+          entry.source,
+        ]
+          .map(escapeCsv)
+          .join(","),
+      );
+
+    // BOM UTF-8 agar Excel membaca karakter non-ASCII (mis. "腹八分目") dengan benar.
+    const csv = "﻿" + [header.map(escapeCsv).join(","), ...rows].join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `raifu-catatan-makanan-${today}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
 
   const [pushState, setPushState] = useState<PushSubscriptionState>("idle");
   const [pushBusy, setPushBusy] = useState(false);
@@ -174,13 +222,13 @@ export function ProfilView() {
     <form onSubmit={handleSave} className="mx-auto max-w-[1400px] px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-2xl">
-          <Eyebrow className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-sage" />
-            Pengaturan Personal · Kontemplasi &amp; Profil
-          </Eyebrow>
-          <h1 className="mt-3 font-serif text-3xl text-ink sm:text-4xl">
+          <h1 className="font-serif text-3xl text-ink sm:text-4xl">
             Profil &amp; Preferensi Nutrisi
           </h1>
+          <p className="mt-2 flex items-center gap-2 text-sm text-muted">
+            <span className="h-1.5 w-1.5 rounded-full bg-sage" />
+            Pengaturan Personal · Kontemplasi &amp; Profil
+          </p>
           <p className="mt-3 text-sm leading-relaxed text-body">
             Kelola data fisik, target metabolisme harian, keamanan akun, dan frekuensi
             pengingat ritual konsistensi Anda.
@@ -294,8 +342,9 @@ export function ProfilView() {
           <Card id="biometri" className="scroll-mt-24 p-6">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
               <div>
-                <Eyebrow>01 · Biometrik Dasar</Eyebrow>
-                <h2 className="mt-2 font-serif text-xl text-ink">Data Fisik &amp; Tubuh</h2>
+                <h2 className="font-serif text-xl text-ink">
+                  01 · Biometrik Dasar: Data Fisik &amp; Tubuh
+                </h2>
               </div>
               <Pill tone="neutral">
                 {lost >= 0
@@ -436,9 +485,8 @@ export function ProfilView() {
           <Card id="target" className="scroll-mt-24 p-6">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
               <div>
-                <Eyebrow>02 · Metabolisme &amp; Nutrisi</Eyebrow>
-                <h2 className="mt-2 font-serif text-xl text-ink">
-                  Target Gizi &amp; Niat Sehat
+                <h2 className="font-serif text-xl text-ink">
+                  02 · Metabolisme &amp; Nutrisi: Target Gizi &amp; Niat Sehat
                 </h2>
               </div>
               <p className="text-xs text-muted">Formula Keseimbangan Raifu</p>
@@ -573,9 +621,8 @@ export function ProfilView() {
           <Card id="notifikasi" className="scroll-mt-24 p-6">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
               <div>
-                <Eyebrow>03 · Ritual Harian &amp; Disiplin</Eyebrow>
-                <h2 className="mt-2 font-serif text-xl text-ink">
-                  Notifikasi &amp; Pengingat Ritual
+                <h2 className="font-serif text-xl text-ink">
+                  03 · Ritual Harian &amp; Disiplin: Notifikasi &amp; Pengingat
                 </h2>
               </div>
               <p className="text-xs text-muted">Disampaikan Santun Tanpa Nada Keras</p>
@@ -641,8 +688,9 @@ export function ProfilView() {
 
           <div className="grid gap-6 lg:grid-cols-2">
             <Card id="privasi" className="scroll-mt-24 p-6">
-              <Eyebrow>04 · Privasi &amp; Keamanan</Eyebrow>
-              <h2 className="mt-2 font-serif text-xl text-ink">Kendali Data Pribadi</h2>
+              <h2 className="font-serif text-xl text-ink">
+                04 · Privasi &amp; Keamanan: Kendali Data Pribadi
+              </h2>
               <ul className="mt-5 space-y-3 text-sm leading-relaxed text-body">
                 <li className="flex gap-3">
                   <ShieldIcon className="mt-0.5 h-4 w-4 shrink-0 text-sage" />
@@ -651,8 +699,8 @@ export function ProfilView() {
                 </li>
                 <li className="flex gap-3">
                   <ShieldIcon className="mt-0.5 h-4 w-4 shrink-0 text-sage" />
-                  Foto makanan diproses langsung di peramban dan tidak diunggah ke server
-                  mana pun.
+                  Foto makanan hanya dikirim ke model AI untuk dianalisis, tidak pernah
+                  disimpan di server kami.
                 </li>
               </ul>
               <button
@@ -669,13 +717,33 @@ export function ProfilView() {
             </Card>
 
             <Card id="integrasi" className="scroll-mt-24 p-6">
-              <Eyebrow>05 · Integrasi &amp; Health Hub</Eyebrow>
-              <h2 className="mt-2 font-serif text-xl text-ink">Perangkat Terhubung</h2>
+              <h2 className="font-serif text-xl text-ink">
+                05 · Integrasi &amp; Health Hub: Perangkat Terhubung
+              </h2>
               <ul className="mt-5 space-y-3">
+                <li className="flex flex-wrap items-center justify-between gap-4 rounded-lg bg-mist p-4">
+                  <span>
+                    <span className="flex items-center gap-3 text-sm text-ink">
+                      <DownloadIcon className="h-4 w-4 text-sage" />
+                      Ekspor Catatan Makanan (CSV)
+                    </span>
+                    <span className="mt-1 block pl-7 text-xs text-body">
+                      {state.entries.length} catatan siap diunduh
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={exportCsv}
+                    disabled={state.entries.length === 0}
+                    className={buttonClass("secondary")}
+                  >
+                    <DownloadIcon className="h-4 w-4" />
+                    Unduh CSV
+                  </button>
+                </li>
                 {[
-                  { name: "Apple Health / Google Fit", status: "Segera Hadir" },
-                  { name: "Timbangan Pintar Bluetooth", status: "Segera Hadir" },
-                  { name: "Ekspor Laporan Bulanan (CSV)", status: "Segera Hadir" },
+                  { name: "Apple Health / Google Fit" },
+                  { name: "Timbangan Pintar Bluetooth" },
                 ].map((item) => (
                   <li
                     key={item.name}
@@ -685,7 +753,7 @@ export function ProfilView() {
                       <DeviceIcon className="h-4 w-4 text-sage" />
                       {item.name}
                     </span>
-                    <Pill tone="outline">{item.status}</Pill>
+                    <Pill tone="outline">Segera Hadir</Pill>
                   </li>
                 ))}
               </ul>

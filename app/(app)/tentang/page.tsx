@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Card, Eyebrow, IconTile, Pill } from "@/app/components/ui";
+import { Card, Pill } from "@/app/components/ui";
 import {
   BowlIcon,
   CheckCircleIcon,
@@ -55,7 +55,7 @@ const PRINCIPLES = [
   {
     title: "Data Milik Penggunanya",
     description:
-      "Seluruh catatan tersimpan aman di server dan hanya bisa diakses lewat akun Anda sendiri. Foto makanan diproses di peramban dan tidak diunggah ke server mana pun.",
+      "Seluruh catatan tersimpan aman di server dan hanya bisa diakses lewat akun Anda sendiri. Foto makanan hanya dikirim ke model AI untuk dianalisis, tidak pernah disimpan.",
   },
   {
     title: "Kearifan Jepang, Bahan Nusantara",
@@ -96,12 +96,12 @@ export default function TentangPage() {
   return (
     <div className="mx-auto max-w-[1100px] space-y-12 px-4 py-10 sm:px-6 lg:px-8">
       <header className="max-w-3xl">
-        <Eyebrow className="flex flex-wrap items-center gap-2">
-          Tentang Platform · <span className="font-jp text-ink">ライフについて</span>
-        </Eyebrow>
-        <h1 className="mt-3 font-serif text-3xl leading-tight text-ink sm:text-4xl">
+        <h1 className="font-serif text-3xl leading-tight text-ink sm:text-4xl">
           Menemani Kebiasaan Sehat yang Bertahan, Bukan yang Memaksa
         </h1>
+        <p className="mt-2 text-sm text-muted">
+          Tentang Platform · <span className="font-jp text-ink">ライフについて</span>
+        </p>
         <p className="mt-4 text-base leading-relaxed text-body">
           Raifu (<span className="font-jp">ライフ</span>) diambil dari kata Jepang yang
           berarti <em>life</em>. Platform ini lahir dari satu pengamatan sederhana:
@@ -112,9 +112,9 @@ export default function TentangPage() {
 
       <section className="grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-center">
         <div>
-          <Eyebrow>Tujuan Platform</Eyebrow>
-          <h2 className="mt-3 font-serif text-2xl text-ink">
-            Membuat Pencatatan Gizi Harian Terasa Ringan dan Berkelanjutan
+          <h2 className="font-serif text-2xl text-ink">
+            Tujuan Platform: Membuat Pencatatan Gizi Harian Terasa Ringan dan
+            Berkelanjutan
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-body">
             Raifu menggabungkan tiga hal: estimasi nutrisi berbasis foto agar pencatatan
@@ -156,21 +156,20 @@ export default function TentangPage() {
       </section>
 
       <section>
-        <Eyebrow>Target Pengguna</Eyebrow>
-        <h2 className="mt-3 font-serif text-2xl text-ink">
-          Dirancang untuk Siapa Raifu Dibuat
+        <h2 className="font-serif text-2xl text-ink">
+          Target Pengguna: Dirancang untuk Siapa Raifu Dibuat
         </h2>
         <ul className="mt-6 grid gap-5 md:grid-cols-3">
           {AUDIENCE.map((item) => (
             <li key={item.title}>
               <Card className="h-full p-6">
-                <IconTile shrink={false}>
-                  {item.icon}
-                </IconTile>
-                <h3 className="mt-4 font-serif text-lg leading-snug text-ink">
-                  {item.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-body">
+                <div className="flex items-center gap-3">
+                  <span className="text-sage">{item.icon}</span>
+                  <h3 className="font-serif text-lg leading-snug text-ink">
+                    {item.title}
+                  </h3>
+                </div>
+                <p className="mt-3 text-sm leading-relaxed text-body">
                   {item.description}
                 </p>
               </Card>
@@ -180,8 +179,9 @@ export default function TentangPage() {
       </section>
 
       <section>
-        <Eyebrow>Prinsip Kerja</Eyebrow>
-        <h2 className="mt-3 font-serif text-2xl text-ink">Empat Komitmen Produk</h2>
+        <h2 className="font-serif text-2xl text-ink">
+          Prinsip Kerja: Empat Komitmen Produk
+        </h2>
         <ul className="mt-6 grid gap-5 md:grid-cols-2">
           {PRINCIPLES.map((item, index) => (
             <li key={item.title}>
@@ -200,8 +200,9 @@ export default function TentangPage() {
       </section>
 
       <section>
-        <Eyebrow>Pertanyaan yang Sering Diajukan</Eyebrow>
-        <h2 className="mt-3 font-serif text-2xl text-ink">FAQ</h2>
+        <h2 className="font-serif text-2xl text-ink">
+          Pertanyaan yang Sering Diajukan (FAQ)
+        </h2>
         <ul className="mt-6 space-y-3">
           {FAQ.map((item) => (
             <li key={item.question}>

@@ -72,6 +72,30 @@ export function MenuSehatView() {
   const totals = totalsOn(state, today);
   const remaining = Math.max(0, targets.kcal - totals.kcal);
 
+  // Sisa kebutuhan makro hari ini — dasar penilaian rekomendasi personal.
+  const gap = {
+    kcal: Math.max(0, targets.kcal - totals.kcal),
+    protein: Math.max(0, targets.protein - totals.protein),
+    fiber: Math.max(0, targets.fiber - totals.fiber),
+  };
+
+  /**
+   * Skor kecocokan 0-1: seberapa pas resep mengisi sisa kebutuhan protein,
+   * serat, dan kalori hari ini. Bobot protein & serat lebih besar karena
+   * dua makro itu paling sering kurang tercapai pada pola makan harian.
+   */
+  const matchScore = (recipe: Recipe) => {
+    const proteinFit = gap.protein > 0 ? Math.min(1, recipe.protein / gap.protein) : 0.5;
+    const fiberFit = gap.fiber > 0 ? Math.min(1, recipe.fiber / gap.fiber) : 0.5;
+    const kcalFit =
+      gap.kcal <= 0
+        ? 0.3
+        : recipe.kcal <= gap.kcal
+          ? 1
+          : Math.max(0, 1 - (recipe.kcal - gap.kcal) / gap.kcal);
+    return proteinFit * 0.4 + fiberFit * 0.3 + kcalFit * 0.3;
+  };
+
   const recipes = useMemo(() => {
     const text = query.trim().toLowerCase();
     return RECIPES.filter((recipe) => {
@@ -86,8 +110,11 @@ export function MenuSehatView() {
         recipe.summary.toLowerCase().includes(text) ||
         recipe.ingredients.some((item) => item.toLowerCase().includes(text))
       );
-    });
-  }, [query, time, kcal, focus]);
+    })
+      .map((recipe) => ({ recipe, score: matchScore(recipe) }))
+      .sort((a, b) => b.score - a.score);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- gap diturunkan dari state, ikut re-render tiap kali state berubah
+  }, [query, time, kcal, focus, gap.kcal, gap.protein, gap.fiber]);
 
   const handleAdd = (recipe: Recipe) => {
     addEntry({
@@ -111,13 +138,13 @@ export function MenuSehatView() {
     <div className="mx-auto max-w-[1400px] space-y-6 px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-2xl">
-          <Eyebrow className="flex flex-wrap items-center gap-2">
-            Pilihan Bergizi Seimbang ·
-            <span className="font-jp text-ink">滋養と調和</span>
-          </Eyebrow>
-          <h1 className="mt-3 font-serif text-3xl text-ink sm:text-4xl">
+          <h1 className="font-serif text-3xl text-ink sm:text-4xl">
             Rekomendasi Menu &amp; Resep Mindful
           </h1>
+          <p className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted">
+            Pilihan Bergizi Seimbang ·
+            <span className="font-jp text-ink">滋養と調和</span>
+          </p>
           <p className="mt-3 text-sm leading-relaxed text-body">
             Resep terkurasi dengan filosofi pangan seimbang Jepang &amp; Nusantara untuk
             mendukung kestabilan metabolisme harian tanpa rasa bersalah.
@@ -152,49 +179,60 @@ export function MenuSehatView() {
           />
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <Eyebrow className="w-28 shrink-0">Waktu Makan</Eyebrow>
-          {TIME_FILTERS.map((item) => (
-            <FilterChip
-              key={item.value}
-              active={time === item.value}
-              onClick={() => setTime(item.value)}
-            >
-              {item.label}
-            </FilterChip>
-          ))}
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+          <Eyebrow className="sm:w-28 sm:shrink-0">Waktu Makan</Eyebrow>
+          <div className="flex flex-wrap gap-2 sm:contents">
+            {TIME_FILTERS.map((item) => (
+              <FilterChip
+                key={item.value}
+                active={time === item.value}
+                onClick={() => setTime(item.value)}
+              >
+                {item.label}
+              </FilterChip>
+            ))}
+          </div>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <Eyebrow className="w-28 shrink-0">Rentang Kalori</Eyebrow>
-          {KCAL_FILTERS.map((item) => (
-            <FilterChip
-              key={item.value}
-              active={kcal === item.value}
-              onClick={() => setKcal(item.value)}
-            >
-              {item.label}
-            </FilterChip>
-          ))}
+        <div className="mt-4 flex flex-col gap-2 sm:mt-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+          <Eyebrow className="sm:w-28 sm:shrink-0">Rentang Kalori</Eyebrow>
+          <div className="flex flex-wrap gap-2 sm:contents">
+            {KCAL_FILTERS.map((item) => (
+              <FilterChip
+                key={item.value}
+                active={kcal === item.value}
+                onClick={() => setKcal(item.value)}
+              >
+                {item.label}
+              </FilterChip>
+            ))}
+          </div>
           <span className="hidden h-4 w-px bg-line sm:block" />
           <Eyebrow className="flex items-center gap-2">
             <SlidersIcon className="h-4 w-4" />
             Fokus Makro
           </Eyebrow>
-          {FOCUS_FILTERS.map((item) => (
-            <FilterChip
-              key={item.value}
-              active={focus === item.value}
-              onClick={() => setFocus(focus === item.value ? null : item.value)}
-            >
-              {item.label}
-            </FilterChip>
-          ))}
+          <div className="flex flex-wrap gap-2 sm:contents">
+            {FOCUS_FILTERS.map((item) => (
+              <FilterChip
+                key={item.value}
+                active={focus === item.value}
+                onClick={() => setFocus(focus === item.value ? null : item.value)}
+              >
+                {item.label}
+              </FilterChip>
+            ))}
+          </div>
         </div>
       </Card>
 
       <div className="grid gap-6 xl:grid-cols-[1.9fr_1fr]">
         <div>
+          <p className="mb-4 flex items-center gap-2 text-xs text-muted">
+            <SlidersIcon className="h-3.5 w-3.5 text-sage" />
+            Diurutkan otomatis berdasarkan sisa protein, serat, dan kalori Anda hari
+            ini
+          </p>
           {recipes.length === 0 ? (
             <Card className="px-6 py-14 text-center">
               <p className="font-serif text-lg text-ink">Belum ada resep yang cocok</p>
@@ -217,7 +255,7 @@ export function MenuSehatView() {
             </Card>
           ) : (
             <ul className="grid gap-5 md:grid-cols-2">
-              {recipes.map((recipe) => (
+              {recipes.map(({ recipe, score }) => (
                 <li key={recipe.slug}>
                   <Card className="flex h-full flex-col overflow-hidden">
                     <span className="relative block aspect-[16/10] bg-stone">
@@ -229,6 +267,11 @@ export function MenuSehatView() {
                         className="object-cover"
                       />
                       <span className="absolute top-3 left-3 flex flex-wrap gap-2">
+                        {score >= 0.7 && (
+                          <span className="rounded bg-sage px-2 py-1 text-xs font-medium text-white">
+                            Direkomendasikan
+                          </span>
+                        )}
                         {recipe.tags.map((tag) => (
                           <span
                             key={tag}
@@ -255,6 +298,9 @@ export function MenuSehatView() {
                         </span>
                         <span className="ml-auto font-medium text-ink tabular-nums">
                           {formatNumber(recipe.kcal)} kkal
+                        </span>
+                        <span className="text-sage" title="Kecocokan dengan sisa kebutuhan gizi hari ini">
+                          Cocok {Math.round(score * 100)}%
                         </span>
                       </p>
 
@@ -318,10 +364,11 @@ export function MenuSehatView() {
         <div className="space-y-6">
           <Card className="p-6">
             <div className="flex items-baseline justify-between gap-3">
-              <Eyebrow>Prinsip Harmoni Makanan</Eyebrow>
+              <h2 className="font-serif text-xl text-ink">
+                Prinsip Harmoni Makanan: Ichiju Sansai
+              </h2>
               <span className="font-jp text-xs text-muted">一汁三菜</span>
             </div>
-            <h2 className="mt-3 font-serif text-xl text-ink">Ichiju Sansai</h2>
             <p className="mt-3 text-sm leading-relaxed text-body">
               Struktur pangan tradisional Jepang: Satu Sup (一汁) &amp; Tiga Lauk (三菜).
               Menghadirkan keseimbangan elektrolit, protein bioavailabel, dan prebiotik
@@ -354,11 +401,10 @@ export function MenuSehatView() {
           </Card>
 
           <Card className="p-6">
-            <Eyebrow className="flex items-center gap-2">
-              <SlidersIcon className="h-4 w-4" />
-              Target Kalori Pribadi
-            </Eyebrow>
-            <h2 className="mt-3 font-serif text-xl text-ink">Target Harian Anda</h2>
+            <h2 className="flex items-center gap-2 font-serif text-xl text-ink">
+              <SlidersIcon className="h-4 w-4 text-sage" />
+              Target Kalori Harian Anda
+            </h2>
             <p className="mt-2 text-sm leading-relaxed text-body">
               Berdasarkan profil metabolik dan ritme aktif Anda (
               {formatNumber(targets.kcal)} kkal / hari).

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -43,6 +43,18 @@ export const metadata: Metadata = {
     type: "website",
     locale: "id_ID",
   },
+  appleWebApp: {
+    title: "Raifu",
+    statusBarStyle: "black-translucent",
+  },
+  icons: {
+    icon: [{ url: "/icon-512.png", sizes: "512x512", type: "image/png" }],
+    apple: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#426449",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -52,6 +64,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${inter.variable} ${shippori.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-cream text-body">
+        <a
+          href="#main-content"
+          className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:top-4 focus-visible:left-4 focus-visible:z-[100] focus-visible:rounded-md focus-visible:bg-sage focus-visible:px-4 focus-visible:py-2.5 focus-visible:text-sm focus-visible:font-medium focus-visible:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+        >
+          Lompat ke konten utama
+        </a>
         <RaifuProvider>{children}</RaifuProvider>
       </body>
     </html>

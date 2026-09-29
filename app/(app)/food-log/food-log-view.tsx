@@ -92,13 +92,13 @@ export function FoodLogView() {
     <div className="mx-auto max-w-[1400px] space-y-6 px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-xl">
-          <Eyebrow className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-sage" />
-            Jurnal Nutrisi Harian
-          </Eyebrow>
-          <h1 className="mt-3 font-serif text-3xl text-ink sm:text-4xl">
+          <h1 className="font-serif text-3xl text-ink sm:text-4xl">
             Catatan Nutrisi &amp; Ritual Makan
           </h1>
+          <p className="mt-2 flex items-center gap-2 text-sm text-muted">
+            <span className="h-1.5 w-1.5 rounded-full bg-sage" />
+            Jurnal Nutrisi Harian
+          </p>
           <p className="mt-3 text-sm leading-relaxed text-body">
             Setiap suapan adalah kesadaran. Pantau keseimbangan makro dan kebiasaan
             santapan Anda dengan ketenangan.
@@ -226,12 +226,11 @@ export function FoodLogView() {
 
         <Card className="flex flex-col p-6">
           <div className="flex items-start justify-between gap-3">
-            <Eyebrow>Prinsip Hara Hachi Bu</Eyebrow>
-            <LeafIcon className="h-5 w-5 text-sage" />
+            <h2 className="font-serif text-xl leading-snug text-ink">
+              Prinsip Hara Hachi Bu: Makanlah hingga 80% kenyang.
+            </h2>
+            <LeafIcon className="h-5 w-5 shrink-0 text-sage" />
           </div>
-          <h2 className="mt-3 font-serif text-xl leading-snug text-ink">
-            Makanlah hingga 80% kenyang.
-          </h2>
           <p className="mt-3 text-sm leading-relaxed text-body">
             Memberi jeda 20 menit saat makan memungkinkan lambung mengirim sinyal
             kepuasan ke otak tanpa membebani pencernaan.
@@ -408,9 +407,8 @@ export function FoodLogView() {
 
       <Card className="grid gap-6 bg-mist p-6 lg:grid-cols-[1.6fr_1fr] lg:items-center">
         <div>
-          <Eyebrow>Kearifan Dapur Raifu</Eyebrow>
-          <h2 className="mt-3 font-serif text-2xl text-ink">
-            Sup Bening Jamur Shimeji &amp; Tahu Sutra
+          <h2 className="font-serif text-2xl text-ink">
+            Kearifan Dapur Raifu: Sup Bening Jamur Shimeji &amp; Tahu Sutra
           </h2>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-body">
             Rendah kalori (180 kkal), tinggi asam amino L-theanine untuk menenangkan
