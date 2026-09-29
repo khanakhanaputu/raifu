@@ -3,10 +3,17 @@
 import { useEffect, useId, useRef, useState } from "react";
 import {
   buttonClass,
+  cx,
   fieldClass,
   FieldLabel,
 } from "@/app/components/ui";
-import { MEAL_TYPES, mealMeta, type MealEntry, type MealType } from "@/lib/store-types";
+import {
+  MEAL_TYPES,
+  mealMeta,
+  type EnergyLevel,
+  type MealEntry,
+  type MealType,
+} from "@/lib/store-types";
 
 export type MealDraft = {
   name: string;
@@ -17,7 +24,14 @@ export type MealDraft = {
   carbs: string;
   fat: string;
   fiber: string;
+  energyLevel: EnergyLevel | null;
 };
+
+const ENERGY_OPTIONS: { value: EnergyLevel; label: string; emoji: string }[] = [
+  { value: "rendah", label: "Lemas", emoji: "😴" },
+  { value: "stabil", label: "Stabil", emoji: "🙂" },
+  { value: "tinggi", label: "Berenergi", emoji: "⚡" },
+];
 
 export function emptyDraft(mealType: MealType): MealDraft {
   return {
@@ -29,6 +43,7 @@ export function emptyDraft(mealType: MealType): MealDraft {
     carbs: "",
     fat: "",
     fiber: "",
+    energyLevel: null,
   };
 }
 
@@ -42,6 +57,32 @@ export function draftFromEntry(entry: MealEntry): MealDraft {
     carbs: String(entry.carbs),
     fat: String(entry.fat),
     fiber: String(entry.fiber),
+    energyLevel: entry.energyLevel ?? null,
+  };
+}
+
+/** Pre-isi draft dari hasil estimasi AI (scan/voice) — angka gizi terisi,
+ * energi dibiarkan kosong untuk diisi manual oleh pengguna. */
+export function draftFromEstimate(estimate: {
+  name: string;
+  mealType: MealType;
+  time: string;
+  kcal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+}): MealDraft {
+  return {
+    name: estimate.name,
+    mealType: estimate.mealType,
+    time: estimate.time,
+    kcal: String(estimate.kcal),
+    protein: String(estimate.protein),
+    carbs: String(estimate.carbs),
+    fat: String(estimate.fat),
+    fiber: String(estimate.fiber),
+    energyLevel: null,
   };
 }
 
@@ -59,6 +100,7 @@ export type MealFormValues = {
   carbs: number;
   fat: number;
   fiber: number;
+  energyLevel?: EnergyLevel;
 };
 
 export function MealFormDialog({
@@ -140,6 +182,7 @@ export function MealFormDialog({
       carbs: toNumber(draft.carbs),
       fat: toNumber(draft.fat),
       fiber: toNumber(draft.fiber),
+      energyLevel: draft.energyLevel ?? undefined,
     });
   };
 
@@ -283,6 +326,45 @@ export function MealFormDialog({
               placeholder="6"
               className={fieldClass}
             />
+          </div>
+
+          <div>
+            <FieldLabel htmlFor={`${id}-energy`}>
+              Energi Setelah Makan (opsional)
+            </FieldLabel>
+            <div id={`${id}-energy`} className="grid grid-cols-3 gap-2">
+              {ENERGY_OPTIONS.map((option) => {
+                const active = draft.energyLevel === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() =>
+                      setDraft((prev) => ({
+                        ...prev,
+                        energyLevel: active ? null : option.value,
+                      }))
+                    }
+                    className={cx(
+                      "flex flex-col items-center gap-1 rounded-md border px-2 py-2.5 text-xs transition-colors",
+                      active
+                        ? "border-sage bg-sage-soft text-sage"
+                        : "border-line text-body hover:border-sage/50",
+                    )}
+                  >
+                    <span aria-hidden className="text-base">
+                      {option.emoji}
+                    </span>
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-1.5 text-xs text-muted">
+              Dipakai untuk kartu Pola Energi di Dashboard — tersimpan di
+              perangkat ini saja.
+            </p>
           </div>
 
           {error && (

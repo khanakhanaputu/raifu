@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Card, Eyebrow, IconTile, Pill, ProgressRing, buttonClass } from "@/app/components/ui";
 import {
+  CalendarIcon,
   CameraIcon,
   ChatIcon,
   LeafIcon,
@@ -14,8 +15,12 @@ import {
 import { useRaifu } from "@/lib/store";
 import { targetsOf, totalsOn } from "@/lib/selectors";
 import { bodyMassIndex, formatNumber, percentOf } from "@/lib/nutrition";
+import { fromISODate, formatShortDate, WEEKDAYS_SHORT } from "@/lib/date";
+import { getBooking, clearBooking, type Booking } from "@/lib/booking";
+import { BookingDialog } from "./booking-dialog";
 import {
   FALLBACK_REPLY,
+  NUTRITIONISTS,
   PHOTOS,
   RELATED_TOPICS,
   SUGGESTED_PROMPTS,
@@ -56,8 +61,17 @@ export function KonsultasiView() {
   const [messages, setMessages] = useState<Message[]>([greeting]);
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [booking, setBookingState] = useState<Booking | null>(null);
   const threadRef = useRef<HTMLDivElement>(null);
   const requestIdRef = useRef(0);
+
+  useEffect(() => {
+    // Dibaca setelah mount agar markup server & klien identik (localStorage
+    // tidak tersedia di server).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setBookingState(getBooking());
+  }, []);
 
   useEffect(() => {
     threadRef.current?.scrollTo({
@@ -417,6 +431,57 @@ export function KonsultasiView() {
             </div>
           </Card>
 
+          <Card className="p-5">
+            {booking ? (
+              <>
+                <Eyebrow className="flex items-center gap-2">
+                  <CalendarIcon className="h-4 w-4" />
+                  Sesi Terjadwal
+                </Eyebrow>
+                <p className="mt-3 text-sm leading-relaxed text-body">
+                  Konsultasi dengan{" "}
+                  <span className="font-medium text-ink">
+                    {NUTRITIONISTS.find((item) => item.id === booking.nutritionistId)?.name}
+                  </span>
+                  <br />
+                  {WEEKDAYS_SHORT[fromISODate(booking.date).getDay()]},{" "}
+                  {formatShortDate(booking.date)} · {booking.time} WIB
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearBooking();
+                    setBookingState(null);
+                  }}
+                  className="mt-3 text-xs text-muted underline-offset-4 hover:text-sage hover:underline"
+                >
+                  Batalkan jadwal
+                </button>
+              </>
+            ) : (
+              <>
+                <Eyebrow className="flex items-center gap-2">
+                  <CalendarIcon className="h-4 w-4" />
+                  Ahli Gizi Manusia
+                </Eyebrow>
+                <h2 className="mt-2 font-serif text-lg text-ink">
+                  Butuh Konsultasi Lebih Mendalam?
+                </h2>
+                <p className="mt-2 text-sm leading-relaxed text-body">
+                  Jadwalkan sesi 30 menit dengan ahli gizi mitra Raifu untuk kondisi yang
+                  butuh pendampingan langsung.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setBookingOpen(true)}
+                  className={buttonClass("secondary", "mt-3 w-full")}
+                >
+                  Jadwalkan Sesi
+                </button>
+              </>
+            )}
+          </Card>
+
           <Card className="overflow-hidden">
             <div className="flex items-center justify-between gap-3 px-5 pt-5">
               <Eyebrow>Inspirasi Piring Hari Ini</Eyebrow>
@@ -465,6 +530,17 @@ export function KonsultasiView() {
           </p>
         </div>
       </div>
+
+      {bookingOpen && (
+        <BookingDialog
+          today={today}
+          onClose={() => setBookingOpen(false)}
+          onBooked={(next) => {
+            setBookingState(next);
+            setBookingOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }

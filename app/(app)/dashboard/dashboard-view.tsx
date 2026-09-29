@@ -30,6 +30,7 @@ import {
 import { useRaifu } from "@/lib/store";
 import {
   badgesOf,
+  energyInsight,
   entriesOn,
   isUnlocked,
   levelInfo,
@@ -64,6 +65,7 @@ export function DashboardView() {
   const streak = streakInfo(state, today);
   const level = levelInfo(state.profile.xp);
   const badges = badgesOf(state, today).slice(0, 5);
+  const energy = energyInsight(state);
 
   const kcalPercent = percentOf(totals.kcal, targets.kcal);
   const remaining = Math.max(0, targets.kcal - totals.kcal);
@@ -431,6 +433,46 @@ export function DashboardView() {
                 </p>
               </div>
             </div>
+          </Card>
+
+          <Card className="p-6">
+            <Eyebrow>Pola Energi</Eyebrow>
+            {energy ? (
+              <>
+                <h3 className="mt-2 font-serif text-lg leading-snug text-ink">
+                  {energy.proteinGapPercent > 0
+                    ? `Protein ${energy.proteinGapPercent}% lebih tinggi di hari berenergi`
+                    : "Pola makan Anda terlihat cukup stabil"}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-body">
+                  Dari {energy.sampleSize} catatan bertanda energi: rata-rata makanan
+                  saat Anda merasa <span className="font-medium text-ink">berenergi</span>{" "}
+                  punya {energy.tinggi.protein}g protein &amp; {energy.tinggi.fiber}g
+                  serat, dibanding {energy.rendah.protein}g &amp; {energy.rendah.fiber}g
+                  saat merasa <span className="font-medium text-ink">lemas</span>.
+                </p>
+                <p className="mt-3 text-xs text-muted">
+                  Rata-rata deskriptif dari riwayat Anda sendiri — bukan diagnosis.
+                </p>
+              </>
+            ) : (
+              <>
+                <h3 className="mt-2 font-serif text-lg leading-snug text-ink">
+                  Belum cukup data
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-body">
+                  Tandai &ldquo;Energi Setelah Makan&rdquo; saat mencatat makanan (di
+                  Food Log) — setelah beberapa kali, Raifu akan menunjukkan pola makro
+                  apa yang biasanya membuat Anda berenergi.
+                </p>
+                <Link
+                  href="/food-log"
+                  className="mt-3 inline-flex text-sm text-sage hover:underline"
+                >
+                  Catat makanan sekarang →
+                </Link>
+              </>
+            )}
           </Card>
 
           <div className="rounded-xl bg-sage-soft p-6">

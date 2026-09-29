@@ -12,6 +12,7 @@ import {
 import { createClient } from "./supabase/client";
 import { todayISO } from "./date";
 import { REMINDER_CATALOG } from "./reminders";
+import { getAllEnergyLevels, setEnergyLevel as persistEnergyLevel } from "./energy-log";
 import {
   mealEntryPatchToRow,
   mealEntryToRow,
@@ -117,7 +118,10 @@ export function RaifuProvider({ children }: { children: React.ReactNode }) {
       }
 
       const profileRow = profileRes.data as ProfileRow;
-      const entries = ((entriesRes.data ?? []) as MealEntryRow[]).map(rowToMealEntry);
+      const energyLevels = getAllEnergyLevels();
+      const entries = ((entriesRes.data ?? []) as MealEntryRow[])
+        .map(rowToMealEntry)
+        .map((entry) => ({ ...entry, energyLevel: energyLevels[entry.id] }));
 
       const water: Record<string, number> = {};
       for (const row of (waterRes.data ?? []) as { log_date: string; ml: number }[]) {
@@ -190,6 +194,8 @@ export function RaifuProvider({ children }: { children: React.ReactNode }) {
         profile: { ...prev.profile, xp: nextXp },
       }));
 
+      if (created.energyLevel) persistEnergyLevel(created.id, created.energyLevel);
+
       const userId = userIdRef.current;
       if (userId) {
         supabase
@@ -221,11 +227,14 @@ export function RaifuProvider({ children }: { children: React.ReactNode }) {
         ),
       }));
 
+      if (patch.energyLevel !== undefined) persistEnergyLevel(id, patch.energyLevel);
+
       const userId = userIdRef.current;
-      if (userId) {
+      const rowPatch = mealEntryPatchToRow(patch);
+      if (userId && Object.keys(rowPatch).length > 0) {
         supabase
           .from("meal_entries")
-          .update(mealEntryPatchToRow(patch))
+          .update(rowPatch)
           .eq("id", id)
           .eq("user_id", userId)
           .then(({ error: updateError }) => {
@@ -242,6 +251,8 @@ export function RaifuProvider({ children }: { children: React.ReactNode }) {
         ...prev,
         entries: prev.entries.filter((entry) => entry.id !== id),
       }));
+
+      persistEnergyLevel(id, undefined);
 
       const userId = userIdRef.current;
       if (userId) {

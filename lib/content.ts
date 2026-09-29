@@ -566,6 +566,42 @@ export function findBotReply(message: string) {
   return best.reply;
 }
 
+export type Nutritionist = {
+  id: string;
+  name: string;
+  specialty: string;
+  bio: string;
+};
+
+/**
+ * Ahli gizi mitra untuk fitur "Jadwalkan Konsultasi" — persona fiksi untuk
+ * prototipe kompetisi, dua di antaranya sudah dipakai sebagai figur
+ * konsisten di halaman lain (artikel Edukasi, kurator Menu Sehat) agar
+ * dunia produk terasa satu kesatuan, bukan nama acak baru di tiap halaman.
+ */
+export const NUTRITIONISTS: Nutritionist[] = [
+  {
+    id: "kenji",
+    name: "dr. Kenji Pramana, Sp.GK",
+    specialty: "Gizi Klinis & Filosofi Hara Hachi Bu",
+    bio: "Fokus pada pola makan sadar tanpa restriksi ekstrem, sering mengulas riset gizi di Edukasi Raifu.",
+  },
+  {
+    id: "rei",
+    name: "Rei Takahashi",
+    specialty: "Kurator Nutrisi & Masakan Jepang Sehat",
+    bio: "Menyusun menu seimbang berbasis filosofi Ichiju Sansai untuk katalog Menu Sehat Raifu.",
+  },
+  {
+    id: "made",
+    name: "Made Wirawan, RD",
+    specialty: "Konselor Mindful Eating & Gizi Keluarga",
+    bio: "Membantu membangun relasi tenang dengan makanan, termasuk untuk kebutuhan gizi anak dan pasangan.",
+  },
+];
+
+export const BOOKING_TIME_SLOTS = ["09:00", "11:00", "13:30", "16:00"];
+
 export const RELATED_TOPICS = [
   {
     title: "Kombinasi Karbohidrat Kompleks Pasca Olahraga",

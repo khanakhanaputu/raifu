@@ -2,6 +2,11 @@ import type { ActivityLevel, Goal, Sex } from "./nutrition";
 
 export type MealType = "sarapan" | "siang" | "malam" | "camilan";
 
+/** Energi yang dirasakan pengguna setelah makan — opsional, tersimpan lokal
+ * (localStorage) saja, tidak dikirim ke Supabase. Dipakai untuk kartu
+ * wawasan "Pola Energi" di Dashboard. */
+export type EnergyLevel = "rendah" | "stabil" | "tinggi";
+
 export type MealEntry = {
   id: string;
   date: string; // YYYY-MM-DD
@@ -16,6 +21,7 @@ export type MealEntry = {
   tags: string[];
   source: "manual" | "scan" | "menu";
   image?: string;
+  energyLevel?: EnergyLevel;
 };
 
 export type ReminderId =

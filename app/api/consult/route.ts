@@ -2,7 +2,10 @@ import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-const GROQ_TEXT_MODEL = "openai/gpt-oss-120b";
+// 20B, bukan 120B: tugasnya QA gizi singkat berbahasa Indonesia dengan
+// system prompt ketat, bukan reasoning kompleks — 20B cukup, separuh biaya
+// ($0.075/$0.30 per 1M token vs $0.15/$0.60), dan lebih cepat.
+const GROQ_TEXT_MODEL = "openai/gpt-oss-20b";
 const MAX_HISTORY_TURNS = 8;
 const MAX_MESSAGE_CHARS = 1000;
 

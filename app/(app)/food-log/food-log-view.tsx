@@ -19,6 +19,7 @@ import {
   DropletIcon,
   JournalIcon,
   LeafIcon,
+  MicIcon,
   PencilIcon,
   PlusIcon,
   ScanIcon,
@@ -32,11 +33,20 @@ import { MEAL_TYPES, type MealEntry, type MealType } from "@/lib/store-types";
 import {
   MealFormDialog,
   draftFromEntry,
+  draftFromEstimate,
   emptyDraft,
   type MealDraft,
   type MealFormValues,
 } from "./meal-form";
+import { VoiceLogDialog, type VoiceEstimate } from "./voice-log-dialog";
 import { PHOTOS } from "@/lib/content";
+
+function mealTypeForHour(hour: number): MealType {
+  if (hour < 10) return "sarapan";
+  if (hour < 15) return "siang";
+  if (hour < 18) return "camilan";
+  return "malam";
+}
 
 type DialogState =
   | { mode: "closed" }
@@ -49,6 +59,7 @@ export function FoodLogView() {
   const [dialog, setDialog] = useState<DialogState>({ mode: "closed" });
   // Setiap pembukaan dialog memakai key baru agar formulir selalu mulai bersih.
   const [dialogKey, setDialogKey] = useState(0);
+  const [voiceOpen, setVoiceOpen] = useState(false);
 
   const activeDate = date ?? today;
   const entries = entriesOn(state, activeDate);
@@ -78,6 +89,21 @@ export function FoodLogView() {
   };
 
   const closeDialog = () => setDialog({ mode: "closed" });
+
+  const handleVoiceParsed = (estimate: VoiceEstimate) => {
+    setVoiceOpen(false);
+    const now = new Date();
+    const mealType = mealTypeForHour(now.getHours());
+    setDialogKey((value) => value + 1);
+    setDialog({
+      mode: "create",
+      draft: draftFromEstimate({
+        ...estimate,
+        mealType,
+        time: `${`${now.getHours()}`.padStart(2, "0")}:${`${now.getMinutes()}`.padStart(2, "0")}`,
+      }),
+    });
+  };
 
   const handleSubmit = (values: MealFormValues) => {
     if (dialog.mode === "create") {
@@ -128,6 +154,15 @@ export function FoodLogView() {
               <ChevronRightIcon className="h-4 w-4" />
             </button>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setVoiceOpen(true)}
+            className={buttonClass("secondary")}
+          >
+            <MicIcon className="h-4 w-4" />
+            Catat via Suara
+          </button>
 
           <button
             type="button"
@@ -440,6 +475,10 @@ export function FoodLogView() {
         onSubmit={handleSubmit}
         onClose={closeDialog}
       />
+
+      {voiceOpen && (
+        <VoiceLogDialog onClose={() => setVoiceOpen(false)} onParsed={handleVoiceParsed} />
+      )}
     </div>
   );
 }

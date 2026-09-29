@@ -244,3 +244,57 @@ export function badgesOf(state: RaifuState, today: string): Badge[] {
 export function isUnlocked(badge: Badge) {
   return badge.progress >= badge.target;
 }
+
+export type EnergyInsight = {
+  sampleSize: number;
+  tinggi: DayTotals & { count: number };
+  rendah: DayTotals & { count: number };
+  proteinGapPercent: number; // seberapa lebih tinggi protein di makanan berenergi "tinggi" vs "rendah"
+  fiberGapGrams: number;
+};
+
+const MIN_SAMPLE_PER_GROUP = 2;
+
+function averageOf(entries: MealEntry[]): DayTotals & { count: number } {
+  if (entries.length === 0) return { ...EMPTY_TOTALS, count: 0 };
+  const sum = sumEntries(entries);
+  return {
+    kcal: Math.round(sum.kcal / entries.length),
+    protein: Math.round(sum.protein / entries.length),
+    carbs: Math.round(sum.carbs / entries.length),
+    fat: Math.round(sum.fat / entries.length),
+    fiber: Math.round(sum.fiber / entries.length),
+    count: entries.length,
+  };
+}
+
+/**
+ * Korelasi sederhana antara komposisi makro dan energi yang dirasakan
+ * pengguna (ditag manual, tersimpan lokal — lihat `lib/energy-log.ts`).
+ * Bukan model prediktif; murni rata-rata deskriptif dari riwayat pengguna
+ * sendiri, ditampilkan hanya ketika datanya cukup untuk bermakna.
+ */
+export function energyInsight(state: RaifuState): EnergyInsight | null {
+  const tinggiEntries = state.entries.filter((entry) => entry.energyLevel === "tinggi");
+  const rendahEntries = state.entries.filter((entry) => entry.energyLevel === "rendah");
+
+  if (
+    tinggiEntries.length < MIN_SAMPLE_PER_GROUP ||
+    rendahEntries.length < MIN_SAMPLE_PER_GROUP
+  ) {
+    return null;
+  }
+
+  const tinggi = averageOf(tinggiEntries);
+  const rendah = averageOf(rendahEntries);
+  const proteinGapPercent =
+    rendah.protein > 0 ? Math.round(((tinggi.protein - rendah.protein) / rendah.protein) * 100) : 0;
+
+  return {
+    sampleSize: tinggiEntries.length + rendahEntries.length,
+    tinggi,
+    rendah,
+    proteinGapPercent,
+    fiberGapGrams: tinggi.fiber - rendah.fiber,
+  };
+}
