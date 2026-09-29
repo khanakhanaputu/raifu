@@ -16,6 +16,31 @@ import { createClient } from "@/lib/supabase/client";
 
 type Tab = "masuk" | "daftar";
 
+/**
+ * Supabase sengaja mengirim pesan generik yang sama ("Invalid login
+ * credentials") untuk email tidak terdaftar MAUPUN kata sandi salah — ini
+ * standar keamanan (mencegah orang lain menebak email mana yang punya
+ * akun), bukan bug. Jadi pesan login gagal digabung, bukan dipisah per
+ * field. Dicek langsung ke project Supabase asli, bukan asumsi.
+ */
+function translateAuthError(error: { code?: string; message: string }): string {
+  switch (error.code) {
+    case "invalid_credentials":
+      return "Email atau kata sandi salah. Periksa kembali keduanya.";
+    case "email_not_confirmed":
+      return "Email belum diverifikasi. Cek kotak masuk Anda untuk tautan verifikasi.";
+    case "user_already_exists":
+      return "Email ini sudah terdaftar. Coba masuk, atau gunakan email lain.";
+    case "weak_password":
+      return "Kata sandi terlalu lemah. Gunakan kombinasi yang lebih kuat.";
+    case "over_email_send_rate_limit":
+    case "over_request_rate_limit":
+      return "Terlalu banyak percobaan. Coba lagi dalam beberapa menit.";
+    default:
+      return error.message || "Terjadi kesalahan. Coba lagi.";
+  }
+}
+
 export function MasukView() {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
@@ -54,7 +79,7 @@ export function MasukView() {
         options: { data: { name: values.name.trim() } },
       });
       if (signUpError) {
-        setError(signUpError.message);
+        setError(translateAuthError(signUpError));
         setPending(false);
         return;
       }
@@ -67,7 +92,7 @@ export function MasukView() {
       password: values.password,
     });
     if (signInError) {
-      setError(signInError.message);
+      setError(translateAuthError(signInError));
       setPending(false);
       return;
     }
@@ -272,7 +297,10 @@ export function MasukView() {
               </label>
 
               {error && (
-                <p role="alert" className="rounded-md bg-mist px-3 py-2 text-xs text-ink">
+                <p
+                  role="alert"
+                  className="rounded-md border border-red-200 bg-red-50 px-3 py-2.5 text-xs text-red-700"
+                >
                   {error}
                 </p>
               )}
