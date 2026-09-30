@@ -50,8 +50,6 @@ export function DashboardView() {
 
   useEffect(() => {
     const now = new Date();
-    // Disengaja: jam lokal baru boleh dibaca setelah hidrasi agar markup
-    // server dan klien tidak berbeda.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setGreeting(greetingFor(now));
     setClock(

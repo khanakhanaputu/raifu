@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Pill, buttonClass } from "@/app/components/ui";
 import { ARTICLES } from "@/lib/content";
+import { initials } from "@/lib/text";
 
 export function generateStaticParams() {
   return ARTICLES.map((article) => ({ slug: article.slug }));
@@ -40,13 +41,7 @@ export default async function ArticlePage({ params }: PageProps<"/edukasi/[slug]
 
         <p className="mt-5 flex flex-wrap items-center gap-3 text-sm text-body">
           <span className="grid h-8 w-8 place-items-center rounded-full bg-sage-soft text-xs font-medium text-sage">
-            {article.author
-              .replace(/dr\.|Sp\.GK/g, "")
-              .trim()
-              .split(" ")
-              .slice(0, 2)
-              .map((word) => word[0])
-              .join("")}
+            {initials(article.author, { stripTitles: true })}
           </span>
           {article.author}
           <span className="h-1 w-1 rounded-full bg-muted" />

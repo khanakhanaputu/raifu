@@ -4,10 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { buttonClass } from "@/app/components/ui";
 import { CameraIcon } from "@/app/components/icons";
 
-/**
- * Pratinjau kamera perangkat. Stream dihentikan saat komponen dilepas agar
- * lampu indikator kamera tidak menyala setelah pengguna berpindah tab.
- */
 export function CameraCapture({
   onCapture,
 }: {

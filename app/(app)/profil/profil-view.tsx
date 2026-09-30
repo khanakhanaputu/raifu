@@ -39,6 +39,7 @@ import {
   type Goal,
   type Sex,
 } from "@/lib/nutrition";
+import { initials } from "@/lib/text";
 
 const SECTIONS = [
   { id: "biometri", label: "Data Diri & Biometri", icon: <UserIcon className="h-4 w-4" /> },
@@ -91,7 +92,6 @@ export function ProfilView() {
           .join(","),
       );
 
-    // BOM UTF-8 agar Excel membaca karakter non-ASCII (mis. "腹八分目") dengan benar.
     const csv = "﻿" + [header.map(escapeCsv).join(","), ...rows].join("\r\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -161,8 +161,6 @@ export function ProfilView() {
   const [status, setStatus] = useState<string | null>(null);
   const [syncedProfile, setSyncedProfile] = useState(state.profile);
 
-  // Profil dapat berubah dari luar (hidrasi localStorage atau pemulihan data).
-  // Penyelarasan saat render adalah pola yang dianjurkan React untuk kasus ini.
   if (syncedProfile !== state.profile) {
     setSyncedProfile(state.profile);
     setForm(formFromProfile());
@@ -294,11 +292,7 @@ export function ProfilView() {
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-5">
                 <span className="grid h-16 w-16 shrink-0 place-items-center rounded-xl bg-sage-soft font-serif text-xl text-sage">
-                  {form.name
-                    .split(" ")
-                    .slice(0, 2)
-                    .map((word) => word[0])
-                    .join("")}
+                  {initials(form.name)}
                 </span>
                 <div>
                   <p className="flex flex-wrap items-center gap-3">

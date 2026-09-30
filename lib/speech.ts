@@ -35,11 +35,6 @@ export type SpeechController = {
   stop: () => void;
 };
 
-/**
- * Mulai pengenalan suara Bahasa Indonesia. `onUpdate` dipanggil berulang
- * dengan transkrip berjalan (interim + final); `onDone` dipanggil sekali
- * saat sesi berhenti (manual atau otomatis oleh browser).
- */
 export function startListening(
   onUpdate: (transcript: string, isFinal: boolean) => void,
   onDone: () => void,

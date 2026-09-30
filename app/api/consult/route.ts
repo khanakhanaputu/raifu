@@ -1,11 +1,7 @@
-import { createClient } from "@/lib/supabase/server";
+import { authorize, chatCompletion, errorResponse, GROQ_TEXT_MODEL } from "@/lib/groq";
 
 export const dynamic = "force-dynamic";
 
-// 20B, bukan 120B: tugasnya QA gizi singkat berbahasa Indonesia dengan
-// system prompt ketat, bukan reasoning kompleks — 20B cukup, separuh biaya
-// ($0.075/$0.30 per 1M token vs $0.15/$0.60), dan lebih cepat.
-const GROQ_TEXT_MODEL = "openai/gpt-oss-20b";
 const MAX_HISTORY_TURNS = 8;
 const MAX_MESSAGE_CHARS = 1000;
 
@@ -32,19 +28,11 @@ Jawab ringkas (maksimal sekitar 120 kata, boleh pakai daftar bernomor singkat ji
 }
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return Response.json({ error: "Silakan masuk untuk memakai Konsultasi Bot." }, { status: 401 });
-  }
-
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) {
-    return Response.json({ error: "Fitur konsultasi AI belum dikonfigurasi di server." }, { status: 503 });
-  }
+  const auth = await authorize({
+    unauthorized: "Silakan masuk untuk memakai Konsultasi Bot.",
+    unconfigured: "Fitur konsultasi AI belum dikonfigurasi di server.",
+  });
+  if ("response" in auth) return auth.response;
 
   const body = await request.json().catch(() => null);
   const message = body?.message as string | undefined;
@@ -52,10 +40,10 @@ export async function POST(request: Request) {
   const profile = body?.profile ?? {};
 
   if (!message || typeof message !== "string" || !message.trim()) {
-    return Response.json({ error: "Pesan tidak boleh kosong." }, { status: 400 });
+    return errorResponse("Pesan tidak boleh kosong.", 400);
   }
   if (message.length > MAX_MESSAGE_CHARS) {
-    return Response.json({ error: "Pesan terlalu panjang." }, { status: 413 });
+    return errorResponse("Pesan terlalu panjang.", 413);
   }
 
   const trimmedHistory = history
@@ -68,48 +56,37 @@ export async function POST(request: Request) {
     )
     .slice(-MAX_HISTORY_TURNS);
 
-  let upstream: Response;
-  try {
-    upstream = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: GROQ_TEXT_MODEL,
-        temperature: 0.6,
-        max_completion_tokens: 500,
-        messages: [
-          {
-            role: "system",
-            content: buildSystemPrompt({
-              name: String(profile.name ?? ""),
-              targetKcal: Number(profile.targetKcal) || 0,
-              weightKg: Number(profile.weightKg) || 0,
-              goal: String(profile.goal ?? "jaga"),
-            }),
-          },
-          ...trimmedHistory,
-          { role: "user", content: message },
-        ],
-      }),
-    });
-  } catch {
-    return Response.json({ error: "Tidak dapat menghubungi layanan AI." }, { status: 502 });
-  }
+  const completion = await chatCompletion(
+    auth.apiKey,
+    {
+      model: GROQ_TEXT_MODEL,
+      temperature: 0.6,
+      max_completion_tokens: 500,
+      messages: [
+        {
+          role: "system",
+          content: buildSystemPrompt({
+            name: String(profile.name ?? ""),
+            targetKcal: Number(profile.targetKcal) || 0,
+            weightKg: Number(profile.weightKg) || 0,
+            goal: String(profile.goal ?? "jaga"),
+          }),
+        },
+        ...trimmedHistory,
+        { role: "user", content: message },
+      ],
+    },
+    {
+      unreachable: "Tidak dapat menghubungi layanan AI.",
+      rateLimited: "Terlalu banyak permintaan. Coba lagi sebentar lagi.",
+      failed: "Gagal mendapat jawaban. Coba lagi.",
+    },
+  );
+  if ("response" in completion) return completion.response;
 
-  if (upstream.status === 429) {
-    return Response.json({ error: "Terlalu banyak permintaan. Coba lagi sebentar lagi." }, { status: 429 });
-  }
-  if (!upstream.ok) {
-    return Response.json({ error: "Gagal mendapat jawaban. Coba lagi." }, { status: 502 });
-  }
-
-  const payload = await upstream.json().catch(() => null);
-  const answer = payload?.choices?.[0]?.message?.content;
+  const answer = completion.content;
   if (typeof answer !== "string" || !answer.trim()) {
-    return Response.json({ error: "Respons AI tidak valid. Coba lagi." }, { status: 502 });
+    return errorResponse("Respons AI tidak valid. Coba lagi.", 502);
   }
 
   return Response.json({ answer: answer.trim() });

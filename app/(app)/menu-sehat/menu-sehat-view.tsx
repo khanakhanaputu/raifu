@@ -72,18 +72,12 @@ export function MenuSehatView() {
   const totals = totalsOn(state, today);
   const remaining = Math.max(0, targets.kcal - totals.kcal);
 
-  // Sisa kebutuhan makro hari ini — dasar penilaian rekomendasi personal.
   const gap = {
     kcal: Math.max(0, targets.kcal - totals.kcal),
     protein: Math.max(0, targets.protein - totals.protein),
     fiber: Math.max(0, targets.fiber - totals.fiber),
   };
 
-  /**
-   * Skor kecocokan 0-1: seberapa pas resep mengisi sisa kebutuhan protein,
-   * serat, dan kalori hari ini. Bobot protein & serat lebih besar karena
-   * dua makro itu paling sering kurang tercapai pada pola makan harian.
-   */
   const matchScore = (recipe: Recipe) => {
     const proteinFit = gap.protein > 0 ? Math.min(1, recipe.protein / gap.protein) : 0.5;
     const fiberFit = gap.fiber > 0 ? Math.min(1, recipe.fiber / gap.fiber) : 0.5;

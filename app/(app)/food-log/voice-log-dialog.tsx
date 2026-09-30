@@ -43,8 +43,6 @@ export function VoiceLogDialog({
     controllerRef.current = startListening(
       (text, isFinal) => setTranscript((prev) => (isFinal ? `${prev} ${text}`.trim() : prev || text)),
       () => {
-        // onDone dari browser — kalau pengguna belum menekan "Selesai", biarkan
-        // status tetap seperti sebelumnya (idle/analyzing sudah menangani sendiri).
       },
       (message) => {
         setError(message);

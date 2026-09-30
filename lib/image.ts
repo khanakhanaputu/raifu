@@ -1,8 +1,3 @@
-/**
- * Kompres data URL gambar di sisi klien sebelum dikirim ke server — menekan
- * ukuran payload & biaya/latensi panggilan vision AI. Hanya jalan di
- * browser (butuh Image/canvas); pemanggil harus berada di komponen client.
- */
 export function compressDataUrl(
   dataUrl: string,
   maxDimension = 1024,

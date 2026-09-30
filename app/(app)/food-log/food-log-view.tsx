@@ -28,8 +28,13 @@ import {
 import { useRaifu } from "@/lib/store";
 import { entriesOn, targetsOf, totalsOn } from "@/lib/selectors";
 import { formatNumber, percentOf } from "@/lib/nutrition";
-import { formatLongDate, shiftDate } from "@/lib/date";
-import { MEAL_TYPES, type MealEntry, type MealType } from "@/lib/store-types";
+import { clockNow, formatLongDate, shiftDate } from "@/lib/date";
+import {
+  MEAL_TYPES,
+  mealTypeAt,
+  type MealEntry,
+  type MealType,
+} from "@/lib/store-types";
 import {
   MealFormDialog,
   draftFromEntry,
@@ -41,13 +46,6 @@ import {
 import { VoiceLogDialog, type VoiceEstimate } from "./voice-log-dialog";
 import { PHOTOS } from "@/lib/content";
 
-function mealTypeForHour(hour: number): MealType {
-  if (hour < 10) return "sarapan";
-  if (hour < 15) return "siang";
-  if (hour < 18) return "camilan";
-  return "malam";
-}
-
 type DialogState =
   | { mode: "closed" }
   | { mode: "create"; draft: MealDraft }
@@ -57,7 +55,6 @@ export function FoodLogView() {
   const { state, today, addEntry, updateEntry, removeEntry, addWater } = useRaifu();
   const [date, setDate] = useState<string | null>(null);
   const [dialog, setDialog] = useState<DialogState>({ mode: "closed" });
-  // Setiap pembukaan dialog memakai key baru agar formulir selalu mulai bersih.
   const [dialogKey, setDialogKey] = useState(0);
   const [voiceOpen, setVoiceOpen] = useState(false);
 
@@ -93,14 +90,14 @@ export function FoodLogView() {
   const handleVoiceParsed = (estimate: VoiceEstimate) => {
     setVoiceOpen(false);
     const now = new Date();
-    const mealType = mealTypeForHour(now.getHours());
+    const mealType = mealTypeAt(now);
     setDialogKey((value) => value + 1);
     setDialog({
       mode: "create",
       draft: draftFromEstimate({
         ...estimate,
         mealType,
-        time: `${`${now.getHours()}`.padStart(2, "0")}:${`${now.getMinutes()}`.padStart(2, "0")}`,
+        time: clockNow(now),
       }),
     });
   };

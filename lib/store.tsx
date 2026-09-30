@@ -32,7 +32,6 @@ import type {
 } from "./store-types";
 
 const XP_PER_ENTRY = 50;
-// Anchor tanggal sampai komponen ter-hidrasi, agar markup server & klien identik.
 const INITIAL_TODAY = "2024-01-01";
 
 type RaifuContextValue = {
@@ -93,8 +92,6 @@ export function RaifuProvider({ children }: { children: React.ReactNode }) {
   const userIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    // Disengaja: tanggal nyata baru dibaca setelah hidrasi agar markup server
-    // dan klien identik saat render pertama.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setToday(todayISO());
   }, []);

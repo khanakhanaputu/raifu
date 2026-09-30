@@ -23,7 +23,8 @@ import { targetsOf } from "@/lib/selectors";
 import { formatNumber, percentOf } from "@/lib/nutrition";
 import { compressDataUrl } from "@/lib/image";
 import { SAMPLE_SCANS, type SampleScan } from "@/lib/content";
-import type { MealType } from "@/lib/store-types";
+import { mealTypeAt } from "@/lib/store-types";
+import { clockNow } from "@/lib/date";
 import { CameraCapture } from "./camera-capture";
 
 type Mode = "sampel" | "unggah" | "kamera";
@@ -36,13 +37,6 @@ const PORTIONS = [
   { value: 1.5, label: "1.5x Mengenyangkan" },
   { value: 2, label: "2.0x Dobel" },
 ];
-
-function mealTypeForHour(hour: number): MealType {
-  if (hour < 10) return "sarapan";
-  if (hour < 15) return "siang";
-  if (hour < 18) return "camilan";
-  return "malam";
-}
 
 function readFileAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -70,7 +64,6 @@ export function ScanView() {
 
   useEffect(
     () => () => {
-      // Membatalkan hasil analisis yang masih berjalan saat komponen dilepas.
       requestIdRef.current += 1;
     },
     [],
@@ -110,7 +103,7 @@ export function ScanView() {
         body: JSON.stringify({ image: compact }),
       });
       const payload = await res.json().catch(() => null);
-      if (requestIdRef.current !== id) return; // dibatalkan oleh aksi baru
+      if (requestIdRef.current !== id) return;
 
       if (!res.ok || !payload) {
         setErrorMessage(payload?.error ?? "Gagal menganalisis foto. Coba lagi.");
@@ -163,9 +156,9 @@ export function ScanView() {
     const now = new Date();
     addEntry({
       date: today,
-      mealType: mealTypeForHour(now.getHours()),
+      mealType: mealTypeAt(now),
       name: sample.name,
-      time: `${`${now.getHours()}`.padStart(2, "0")}:${`${now.getMinutes()}`.padStart(2, "0")}`,
+      time: clockNow(now),
       kcal: scaled.kcal,
       protein: scaled.protein,
       carbs: scaled.carbs,
@@ -307,7 +300,6 @@ export function ScanView() {
                     priority
                   />
                 ) : (
-                  // Gambar dari kamera/berkas lokal memakai <img> karena sumbernya data URL.
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={image}

@@ -1,4 +1,4 @@
-"use client"; // Error boundary wajib Client Component
+"use client";
 
 import { useEffect } from "react";
 import Link from "next/link";

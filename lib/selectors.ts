@@ -10,7 +10,7 @@ export type DayTotals = {
   fiber: number;
 };
 
-export const EMPTY_TOTALS: DayTotals = {
+const EMPTY_TOTALS: DayTotals = {
   kcal: 0,
   protein: 0,
   carbs: 0,
@@ -18,7 +18,7 @@ export const EMPTY_TOTALS: DayTotals = {
   fiber: 0,
 };
 
-export function biometricsOf(state: RaifuState): Biometrics {
+function biometricsOf(state: RaifuState): Biometrics {
   return {
     sex: state.profile.sex,
     age: state.profile.age,
@@ -39,7 +39,7 @@ export function entriesOn(state: RaifuState, date: string) {
     .sort((a, b) => a.time.localeCompare(b.time));
 }
 
-export function sumEntries(entries: MealEntry[]): DayTotals {
+function sumEntries(entries: MealEntry[]): DayTotals {
   return entries.reduce<DayTotals>(
     (acc, entry) => ({
       kcal: acc.kcal + entry.kcal,
@@ -56,7 +56,7 @@ export function totalsOn(state: RaifuState, date: string) {
   return sumEntries(entriesOn(state, date));
 }
 
-export function loggedDates(state: RaifuState) {
+function loggedDates(state: RaifuState) {
   return new Set(state.entries.map((entry) => entry.date));
 }
 
@@ -104,7 +104,7 @@ export function streakInfo(state: RaifuState, today: string): StreakInfo {
   };
 }
 
-export const LEVELS = [
+const LEVELS = [
   "Pemula Sadar",
   "Active Health Enthusiast",
   "Nutrition Artisan",
@@ -249,7 +249,7 @@ export type EnergyInsight = {
   sampleSize: number;
   tinggi: DayTotals & { count: number };
   rendah: DayTotals & { count: number };
-  proteinGapPercent: number; // seberapa lebih tinggi protein di makanan berenergi "tinggi" vs "rendah"
+  proteinGapPercent: number;
   fiberGapGrams: number;
 };
 
@@ -268,12 +268,6 @@ function averageOf(entries: MealEntry[]): DayTotals & { count: number } {
   };
 }
 
-/**
- * Korelasi sederhana antara komposisi makro dan energi yang dirasakan
- * pengguna (ditag manual, tersimpan lokal — lihat `lib/energy-log.ts`).
- * Bukan model prediktif; murni rata-rata deskriptif dari riwayat pengguna
- * sendiri, ditampilkan hanya ketika datanya cukup untuk bermakna.
- */
 export function energyInsight(state: RaifuState): EnergyInsight | null {
   const tinggiEntries = state.entries.filter((entry) => entry.energyLevel === "tinggi");
   const rendahEntries = state.entries.filter((entry) => entry.energyLevel === "rendah");

@@ -13,6 +13,7 @@ import {
 } from "@/app/components/icons";
 import { ARTICLES, ARTICLE_CATEGORIES } from "@/lib/content";
 import { useRaifu } from "@/lib/store";
+import { initials } from "@/lib/text";
 
 export function EdukasiView() {
   const { state, updateProfile } = useRaifu();
@@ -99,13 +100,7 @@ export function EdukasiView() {
 
           <p className="mt-6 flex items-center gap-3">
             <span className="grid h-8 w-8 place-items-center rounded-full bg-sage-soft text-xs font-medium text-sage">
-              {featured.author
-                .replace(/dr\.|Sp\.GK/g, "")
-                .trim()
-                .split(" ")
-                .slice(0, 2)
-                .map((word) => word[0])
-                .join("")}
+              {initials(featured.author, { stripTitles: true })}
             </span>
             <span className="text-sm text-ink">{featured.author}</span>
           </p>

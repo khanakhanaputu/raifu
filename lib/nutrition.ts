@@ -86,7 +86,6 @@ export const GOAL_OPTIONS: {
   },
 ];
 
-/** Rasio makronutrien Raifu: 25% protein, 48% karbohidrat, 27% lemak sehat. */
 const MACRO_SPLIT = { protein: 0.25, carbs: 0.48, fat: 0.27 };
 const KCAL_PER_GRAM = { protein: 4, carbs: 4, fat: 9 };
 
@@ -96,7 +95,7 @@ export function clamp(value: number, min: number, max: number) {
 }
 
 /** BMR Harris-Benedict (revisi Roza & Shizgal, 1984). */
-export function basalMetabolicRate({ sex, age, weightKg, heightCm }: Biometrics) {
+function basalMetabolicRate({ sex, age, weightKg, heightCm }: Biometrics) {
   const w = clamp(weightKg, 30, 250);
   const h = clamp(heightCm, 120, 230);
   const a = clamp(age, 13, 90);
@@ -109,11 +108,11 @@ export function basalMetabolicRate({ sex, age, weightKg, heightCm }: Biometrics)
   return (pria + wanita) / 2;
 }
 
-export function activityFactor(level: ActivityLevel) {
+function activityFactor(level: ActivityLevel) {
   return ACTIVITY_OPTIONS.find((item) => item.value === level)?.factor ?? 1.55;
 }
 
-export function goalFactor(goal: Goal) {
+function goalFactor(goal: Goal) {
   return GOAL_OPTIONS.find((item) => item.value === goal)?.factor ?? 1;
 }
 

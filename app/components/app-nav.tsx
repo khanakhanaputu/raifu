@@ -18,10 +18,8 @@ import {
 import { useRaifu } from "@/lib/store";
 import { streakInfo } from "@/lib/selectors";
 import { cx } from "./ui";
+import { initials } from "@/lib/text";
 
-// Tab bar produk — sengaja beda dari nav marketing (SiteNav): ikon+label
-// dalam pil aktif, bukan garis-bawah ala tautan halaman. Tanpa "Beranda":
-// begitu masuk, tidak ada alasan untuk kembali ke halaman pemasaran.
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: GridIcon },
   { href: "/scan", label: "Scan Nutrisi", icon: ScanIcon },
@@ -97,11 +95,7 @@ export function AppNav() {
             className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-line bg-white transition-colors hover:border-sage"
           >
             <span className="font-serif text-xs text-sage">
-              {state.profile.name
-                .split(" ")
-                .slice(0, 2)
-                .map((word) => word[0])
-                .join("")}
+              {initials(state.profile.name)}
             </span>
           </Link>
 

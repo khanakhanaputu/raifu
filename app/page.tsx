@@ -14,6 +14,7 @@ import {
   ScanIcon,
   StarIcon,
 } from "./components/icons";
+import { initials } from "@/lib/text";
 
 const HERO_STATS = [
   { value: "Instan", label: "Estimasi Nutrisi" },
@@ -21,9 +22,6 @@ const HERO_STATS = [
   { value: "10.000+", label: "Menu Terverifikasi" },
 ];
 
-// Penomoran kanji formal (壱弐参肆 = 1-4), sama seperti penanda level di
-// halaman Streak — dipakai sebagai tanda urutan fitur, ganti pola generik
-// "ikon dalam kotak di atas judul".
 const ORDINAL_KANJI = ["壱", "弐", "参", "肆"];
 
 const FEATURES = [
@@ -471,13 +469,4 @@ function FinalCta() {
       </div>
     </section>
   );
-}
-
-function initials(name: string) {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase() ?? "")
-    .join("");
 }

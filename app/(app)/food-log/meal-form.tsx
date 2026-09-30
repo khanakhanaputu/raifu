@@ -61,8 +61,6 @@ export function draftFromEntry(entry: MealEntry): MealDraft {
   };
 }
 
-/** Pre-isi draft dari hasil estimasi AI (scan/voice) — angka gizi terisi,
- * energi dibiarkan kosong untuk diisi manual oleh pengguna. */
 export function draftFromEstimate(estimate: {
   name: string;
   mealType: MealType;

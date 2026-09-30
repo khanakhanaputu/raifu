@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { clamp } from "@/lib/nutrition";
 
 const ACTIVITY = [
   { value: "1.2", label: "Sedentari (kerja duduk)" },
@@ -15,7 +16,6 @@ const GOALS = [
   { value: "1.12", label: "Naik Massa Sehat" },
 ];
 
-/** Rasio makronutrien Raifu: 19% protein, 56% karbohidrat, 25% lemak sehat. */
 const MACRO_SPLIT = { protein: 0.19, karbo: 0.56, lemak: 0.25 };
 const KCAL_PER_GRAM = { protein: 4, karbo: 4, lemak: 9 };
 
@@ -32,7 +32,6 @@ export function NutritionCalculator() {
     const h = clamp(Number(height), 120, 230);
     const a = clamp(Number(age), 13, 90);
 
-    // Harris-Benedict (revisi Roza & Shizgal, 1984)
     const bmr =
       sex === "pria"
         ? 88.362 + 13.397 * w + 4.799 * h - 5.677 * a
@@ -204,9 +203,4 @@ function Macro({ label, value }: { label: string; value: string }) {
       </span>
     </div>
   );
-}
-
-function clamp(value: number, min: number, max: number) {
-  if (!Number.isFinite(value)) return min;
-  return Math.min(Math.max(value, min), max);
 }

@@ -1,8 +1,7 @@
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 export const WEEKDAYS_SHORT = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
-export const WEEKDAYS_INITIAL = ["M", "S", "S", "R", "K", "J", "S"];
-export const MONTHS = [
+const MONTHS = [
   "Januari",
   "Februari",
   "Maret",
@@ -54,7 +53,6 @@ export function monthLabel(iso: string) {
   return `${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
 }
 
-/** Matriks kalender bulanan (6 baris x 7 kolom) berisi tanggal ISO. */
 export function monthMatrix(iso: string) {
   const date = fromISODate(iso);
   const first = new Date(date.getFullYear(), date.getMonth(), 1);
@@ -70,7 +68,6 @@ export function monthMatrix(iso: string) {
   });
 }
 
-/** Tujuh hari terakhir (termasuk hari ini), urut dari paling lama. */
 export function lastSevenDays(iso: string) {
   return Array.from({ length: 7 }, (_, index) => shiftDate(iso, index - 6));
 }
@@ -81,4 +78,12 @@ export function greetingFor(date = new Date()) {
   if (hour < 15) return { id: "Selamat siang", jp: "昼の調和" };
   if (hour < 19) return { id: "Selamat sore", jp: "夕の調和" };
   return { id: "Selamat malam", jp: "夜の調和" };
+}
+
+export function formatClock(hours: number, minutes: number) {
+  return `${`${hours}`.padStart(2, "0")}:${`${minutes}`.padStart(2, "0")}`;
+}
+
+export function clockNow(date = new Date()) {
+  return formatClock(date.getHours(), date.getMinutes());
 }

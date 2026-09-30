@@ -2,9 +2,6 @@ import type { ActivityLevel, Goal, Sex } from "./nutrition";
 
 export type MealType = "sarapan" | "siang" | "malam" | "camilan";
 
-/** Energi yang dirasakan pengguna setelah makan — opsional, tersimpan lokal
- * (localStorage) saja, tidak dikirim ke Supabase. Dipakai untuk kartu
- * wawasan "Pola Energi" di Dashboard. */
 export type EnergyLevel = "rendah" | "stabil" | "tinggi";
 
 export type MealEntry = {
@@ -103,4 +100,12 @@ export const MEAL_TYPES: {
 
 export function mealMeta(type: MealType) {
   return MEAL_TYPES.find((item) => item.value === type) ?? MEAL_TYPES[0];
+}
+
+export function mealTypeAt(date = new Date()): MealType {
+  const hour = date.getHours();
+  if (hour < 10) return "sarapan";
+  if (hour < 15) return "siang";
+  if (hour < 18) return "camilan";
+  return "malam";
 }

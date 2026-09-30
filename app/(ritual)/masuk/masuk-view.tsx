@@ -16,13 +16,7 @@ import { createClient } from "@/lib/supabase/client";
 
 type Tab = "masuk" | "daftar";
 
-/**
- * Supabase sengaja mengirim pesan generik yang sama ("Invalid login
- * credentials") untuk email tidak terdaftar MAUPUN kata sandi salah — ini
- * standar keamanan (mencegah orang lain menebak email mana yang punya
- * akun), bukan bug. Jadi pesan login gagal digabung, bukan dipisah per
- * field. Dicek langsung ke project Supabase asli, bukan asumsi.
- */
+// Supabase sengaja memberi pesan generik untuk email tak terdaftar maupun password salah (anti enumerasi akun), jadi keduanya digabung.
 function translateAuthError(error: { code?: string; message: string }): string {
   switch (error.code) {
     case "invalid_credentials":

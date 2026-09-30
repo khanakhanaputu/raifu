@@ -316,15 +316,6 @@ export function LockIcon({ className }: IconProps) {
   );
 }
 
-export function TorchIcon({ className }: IconProps) {
-  return (
-    <svg {...base} className={className}>
-      <path d="M4 7h16M6 7v13M18 7v13M4.5 11h15" />
-      <path d="M8.5 4.5h7" />
-    </svg>
-  );
-}
-
 export function GridIcon({ className }: IconProps) {
   return (
     <svg {...base} className={className}>

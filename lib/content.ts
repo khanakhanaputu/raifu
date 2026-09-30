@@ -463,7 +463,7 @@ export const SUGGESTED_PROMPTS = [
   "Berapa kebutuhan protein harian saya?",
 ];
 
-export const BOT_REPLIES: FaqReply[] = [
+const BOT_REPLIES: FaqReply[] = [
   {
     keywords: ["ngemil", "manis", "malam", "craving", "gula"],
     answer:
@@ -573,12 +573,6 @@ export type Nutritionist = {
   bio: string;
 };
 
-/**
- * Ahli gizi mitra untuk fitur "Jadwalkan Konsultasi" — persona fiksi untuk
- * prototipe kompetisi, dua di antaranya sudah dipakai sebagai figur
- * konsisten di halaman lain (artikel Edukasi, kurator Menu Sehat) agar
- * dunia produk terasa satu kesatuan, bukan nama acak baru di tiap halaman.
- */
 export const NUTRITIONISTS: Nutritionist[] = [
   {
     id: "kenji",

@@ -1,7 +1,5 @@
 type LogoProps = {
-  /** Tinggi block katakana dalam px; logotype menyesuaikan. */
   size?: "sm" | "md" | "lg";
-  /** Varian terang untuk dipakai di atas background sage. */
   tone?: "dark" | "light";
   showKatakanaWordmark?: boolean;
 };
@@ -12,10 +10,6 @@ const SIZES = {
   lg: { block: "h-11 w-6 text-[10px]", type: "text-3xl" },
 } as const;
 
-/**
- * Logo Raifu: block sage berisi katakana ライフ (vertikal) + logotype serif,
- * dengan titik huruf "i" diganti warna sage sesuai panduan branding.
- */
 export function Logo({ size = "md", tone = "dark", showKatakanaWordmark = false }: LogoProps) {
   const s = SIZES[size];
   const isLight = tone === "light";
@@ -39,8 +33,6 @@ export function Logo({ size = "md", tone = "dark", showKatakanaWordmark = false 
         }`}
       >
         Ra
-        {/* Aksen sage pada huruf "i" — penanda yang menyatukan logotype
-            dengan block katakana, sesuai panduan branding Raifu. */}
         <span aria-hidden className={isLight ? "text-sage-soft" : "text-sage"}>
           i
         </span>

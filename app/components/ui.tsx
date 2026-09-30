@@ -41,33 +41,6 @@ export function Eyebrow({
   );
 }
 
-export function PageHeading({
-  eyebrow,
-  title,
-  description,
-  aside,
-}: {
-  eyebrow?: ReactNode;
-  title: ReactNode;
-  description?: ReactNode;
-  aside?: ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-      <div className="max-w-2xl">
-        {eyebrow && <Eyebrow className="mb-3">{eyebrow}</Eyebrow>}
-        <h1 className="font-serif text-3xl leading-tight text-ink sm:text-4xl">
-          {title}
-        </h1>
-        {description && (
-          <p className="mt-3 text-sm leading-relaxed text-body">{description}</p>
-        )}
-      </div>
-      {aside}
-    </div>
-  );
-}
-
 type PillTone = "sage" | "neutral" | "solid" | "outline";
 
 const PILL_TONES: Record<PillTone, string> = {
@@ -179,7 +152,6 @@ export function ProgressBar({
   );
 }
 
-/** Cincin progres berbasis conic-gradient — ringan tanpa dependensi grafik. */
 export function ProgressRing({
   value,
   size = 112,
@@ -276,26 +248,6 @@ export function FilterChip({
     >
       {children}
     </button>
-  );
-}
-
-export function EmptyState({
-  title,
-  description,
-  action,
-}: {
-  title: string;
-  description: string;
-  action?: ReactNode;
-}) {
-  return (
-    <div className="rounded-xl border border-dashed border-line bg-white/60 px-6 py-10 text-center">
-      <p className="font-serif text-lg text-ink">{title}</p>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-body">
-        {description}
-      </p>
-      {action && <div className="mt-5 flex justify-center">{action}</div>}
-    </div>
   );
 }
 

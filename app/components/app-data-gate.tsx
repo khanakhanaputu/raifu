@@ -8,11 +8,6 @@ function Bar({ className = "" }: { className?: string }) {
   return <span className={`block rounded bg-stone ${className}`} />;
 }
 
-/**
- * Kerangka pulsing generik yang meniru bentuk umum halaman produk (header +
- * grid kartu dua kolom) — tampil sesaat saat data Supabase pertama kali
- * dimuat, menggantikan spinner polos.
- */
 function PageSkeleton() {
   return (
     <div
@@ -52,9 +47,6 @@ export function AppDataGate({ children }: { children: React.ReactNode }) {
   const { loading, error, state } = useRaifu();
   const router = useRouter();
 
-  // Profil baru dari Supabase berisi angka nol (belum isi berat/tinggi/usia)
-  // sampai onboarding selesai — biarkan angka itu terpakai di halaman produk
-  // hanya akan menampilkan target gizi yang seolah nyata padahal kosong.
   useEffect(() => {
     if (!loading && !error && !state.onboarded) {
       router.replace("/onboarding");

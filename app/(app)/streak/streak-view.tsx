@@ -22,6 +22,7 @@ import {
 } from "@/lib/selectors";
 import { formatNumber } from "@/lib/nutrition";
 import {
+  formatClock,
   fromISODate,
   monthLabel,
   monthMatrix,
@@ -472,5 +473,5 @@ function averageLogTime(times: string[]) {
   const average = Math.round(
     minutes.reduce((sum, value) => sum + value, 0) / minutes.length,
   );
-  return `${`${Math.floor(average / 60)}`.padStart(2, "0")}:${`${average % 60}`.padStart(2, "0")}`;
+  return formatClock(Math.floor(average / 60), average % 60);
 }

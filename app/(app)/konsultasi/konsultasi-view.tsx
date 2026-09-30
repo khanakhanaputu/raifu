@@ -15,7 +15,12 @@ import {
 import { useRaifu } from "@/lib/store";
 import { targetsOf, totalsOn } from "@/lib/selectors";
 import { bodyMassIndex, formatNumber, percentOf } from "@/lib/nutrition";
-import { fromISODate, formatShortDate, WEEKDAYS_SHORT } from "@/lib/date";
+import {
+  clockNow,
+  fromISODate,
+  formatShortDate,
+  WEEKDAYS_SHORT,
+} from "@/lib/date";
 import { getBooking, clearBooking, type Booking } from "@/lib/booking";
 import { BookingDialog } from "./booking-dialog";
 import {
@@ -36,11 +41,6 @@ type Message = {
   steps?: FaqReply["steps"];
   chips?: string[];
 };
-
-function clockNow() {
-  const now = new Date();
-  return `${`${now.getHours()}`.padStart(2, "0")}:${`${now.getMinutes()}`.padStart(2, "0")}`;
-}
 
 export function KonsultasiView() {
   const { state, today } = useRaifu();
@@ -67,8 +67,6 @@ export function KonsultasiView() {
   const requestIdRef = useRef(0);
 
   useEffect(() => {
-    // Dibaca setelah mount agar markup server & klien identik (localStorage
-    // tidak tersedia di server).
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setBookingState(getBooking());
   }, []);
@@ -82,7 +80,7 @@ export function KonsultasiView() {
 
   useEffect(
     () => () => {
-      requestIdRef.current += 1; // batalkan respons yang masih menunggu saat unmount
+      requestIdRef.current += 1;
     },
     [],
   );
@@ -121,7 +119,7 @@ export function KonsultasiView() {
         }),
       });
       const payload = await res.json().catch(() => null);
-      if (requestIdRef.current !== id) return; // sudah di-reset / pesan baru dikirim
+      if (requestIdRef.current !== id) return;
 
       if (res.ok && payload?.answer) {
         setMessages((prev) => [
@@ -129,7 +127,6 @@ export function KonsultasiView() {
           { id: `bot-${id}`, role: "bot", time: clockNow(), text: payload.answer },
         ]);
       } else {
-        // AI gagal (kuota/koneksi) — jatuh ke asisten template lokal sebagai cadangan.
         const match = findBotReply(question);
         setMessages((prev) => [
           ...prev,
